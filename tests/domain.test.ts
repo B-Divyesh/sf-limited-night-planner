@@ -41,6 +41,10 @@ describe('round routing', () => {
     expect(rounds.every((round) => round.filter((pair) => pair.bye).length === 1)).toBe(true);
   });
 
+  it('keeps the requested round count when a second circuit is needed', () => {
+    expect(generatePairingRounds(['A', 'B', 'C', 'D'], 5)).toHaveLength(5);
+  });
+
   it('builds deterministic start and end times', () => {
     const plan = createDefaultPlan();
     plan.eventDate = '2026-08-27';

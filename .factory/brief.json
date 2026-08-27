@@ -1,0 +1,30 @@
+{
+  "slug": "limited-night-planner",
+  "title": "Limited Night Planner",
+  "territory": "games-creative",
+  "user": "Hosts running a casual limited card or tabletop event from a mixed personal collection who need to turn uncertain inventory into a fair, timed, low-friction night.",
+  "evidence": [
+    {
+      "url": "https://boardgames.stackexchange.com/questions/61929/how-could-you-best-run-a-limited-event-with-only-random-bulk",
+      "date": "2025-05-17",
+      "quote_or_summary": "A host with more than 2,000 bulk cards asks for a fun limited event so friends can build decks and take cards home instead of merely storing or selling them."
+    },
+    {
+      "url": "https://boardgames.stackexchange.com/questions/61883/ticket-to-ride-uk-card-deck-and-base-game",
+      "date": "2025-04-26",
+      "quote_or_summary": "A player asks whether a replacement card deck differs from the base Ticket to Ride deck beyond six locomotives, illustrating the component-compatibility uncertainty hosts face."
+    }
+  ],
+  "recurrence": "Both 2025 questions arise when a host must make a playable event from physical components whose composition or compatibility is uncertain; bad setup wastes the whole group's session.",
+  "current_workaround": "Use a spreadsheet, count components by hand, search rules/forums, and improvise seating, rounds, and timers during the event.",
+  "incumbents_and_gap": "Challonge handles brackets and publisher apps handle specific games. There is no lightweight, rules-neutral planner that starts with a host's component counts and emits a setup, rounds, and exception checklist without needing a proprietary card database.",
+  "smallest_useful_product": "Offline PWA with inventory counts, player count, pack/pool assumptions, round timer, seating rotation, and printable host sheet; users write their own compatibility notes. Non-goals: official rules text, card database, matchmaking, or online play.",
+  "success_measure": "In 15 hosted events, at least 12 begin within ten minutes of the planned start and hosts use the generated checklist for every round transition.",
+  "artifact_class": "pwa-offline",
+  "monetization": "one-time — hosts value a dependable event tool that works in venues with poor connectivity.",
+  "constraints": "No copyrighted rules or card images; all game-specific content is user-entered; support printing and local export.",
+  "est_build_effort": "S",
+  "why_distinct": "It plans the physical event from uncertain inventory; it is not another rules wiki, bracket site, or virtual tabletop.",
+  "confidence": 3,
+  "state": "BUILT"
+}

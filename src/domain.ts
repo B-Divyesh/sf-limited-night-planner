@@ -131,8 +131,7 @@ export function participantNames(plan: Pick<Plan, 'players' | 'playerNames'>): s
 export function generatePairingRounds(names: string[], requestedRounds: number): Pairing[][] {
   const entrants = [...names];
   if (entrants.length % 2) entrants.push('BYE');
-  const maxRounds = Math.max(1, entrants.length - 1);
-  const roundCount = Math.min(clampInt(requestedRounds, 1, 20), maxRounds);
+  const roundCount = clampInt(requestedRounds, 1, 20);
   const rotating = [...entrants];
   const result: Pairing[][] = [];
 

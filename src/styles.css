@@ -1,3 +1,27 @@
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next Variable';
+  src: url('../node_modules/@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2') format('woff2-variations');
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2') format('woff2');
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600 749;
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2') format('woff2');
+  font-style: normal;
+  font-display: swap;
+  font-weight: 750 800;
+}
+
 :root {
   font-family: 'Atkinson Hyperlegible Next Variable', 'Atkinson Hyperlegible', system-ui, sans-serif;
   color: #fff8e8;
@@ -57,13 +81,14 @@ h3 { margin-bottom: 8px; font-size: 1.35rem; }
 .hero-lead { max-width: 34rem; margin-bottom: 28px; color: var(--muted-night); font-size: 1.2rem; line-height: 1.55; }
 .hero-art { display: block; position: relative; margin-left: -20px; transform: perspective(1000px) rotateY(-3deg); }
 .hero-art::after { position: absolute; inset: 0; border: 1px solid var(--brass); box-shadow: inset 0 0 0 12px rgb(16 24 39 / 30%); content: ''; pointer-events: none; }
-.hero-art img { display: block; width: 100%; min-height: 440px; object-fit: cover; object-position: 42% center; box-shadow: var(--shadow); }
+.hero-art img { display: block; width: 100%; height: auto; min-height: 440px; object-fit: cover; object-position: 42% center; box-shadow: var(--shadow); }
 
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 11px 18px; border: 2px solid transparent; border-radius: 2px; font-weight: 700; line-height: 1.2; text-decoration: none; cursor: pointer; transition: transform 180ms ease, background-color 180ms ease, color 180ms ease; }
 .button:hover { transform: translateY(-2px); }
 .button:active { transform: translateY(1px); }
 .button-primary { background: var(--signal-dark); color: #fff; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
 .button-primary:hover { background: #b43a29; }
+.button-primary span { margin-left: 8px; }
 .button-secondary { border-color: currentColor; background: transparent; color: inherit; }
 .button-secondary:hover { background: rgb(224 180 76 / 12%); }
 .button-brass { background: var(--brass); color: var(--ink); }

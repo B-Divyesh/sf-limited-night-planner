@@ -1,7 +1,3 @@
-import '@fontsource/barlow-condensed/latin-600.css';
-import '@fontsource/barlow-condensed/latin-700.css';
-import '@fontsource/barlow-condensed/latin-800.css';
-import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
 import './styles.css';
 import {
   buildRounds,
@@ -120,8 +116,8 @@ function renderLanding(): void {
         <p class="microcopy">Free planner · local-first · works offline after first visit</p>
       </div>
       <picture class="hero-art">
-        <source srcset="/assets/midnight-route-768.webp 768w, /assets/midnight-route-1536.webp 1536w" type="image/webp" />
-        <img src="/assets/midnight-route-1536.webp" width="1536" height="1024" alt="Blank tabletop components traveling along brass routes into four equal player kits" fetchpriority="high" decoding="async" />
+        <source srcset="/assets/midnight-route-768.webp 768w, /assets/midnight-route-1536.webp 1536w" sizes="(max-width: 860px) calc(100vw - 24px), 60vw" type="image/webp" />
+        <img src="/assets/midnight-route-1536.webp" srcset="/assets/midnight-route-768.webp 768w, /assets/midnight-route-1536.webp 1536w" sizes="(max-width: 860px) calc(100vw - 24px), 60vw" width="1536" height="1024" alt="Blank tabletop components traveling along brass routes into four equal player kits" fetchpriority="high" decoding="async" />
       </picture>
     </section>
     <section class="promise" aria-labelledby="promise-title">
@@ -214,6 +210,7 @@ function feasibilityCard(result = calculateFeasibility(plan!)): string {
 
 function formatView(): string {
   const result = calculateFeasibility(plan!);
+  const uniqueRounds = plan!.players % 2 === 0 ? plan!.players - 1 : plan!.players;
   return `<section class="work-grid">
     <div class="work-main">
       <section aria-labelledby="deal-title"><div class="section-heading"><div><p class="eyebrow">Assembly route</p><h2 id="deal-title">How will you divide the pile?</h2></div></div>
@@ -229,6 +226,7 @@ function formatView(): string {
       </section>
       <section aria-labelledby="timing-title"><div class="section-heading"><div><p class="eyebrow">Working timetable</p><h2 id="timing-title">Set the pace</h2></div></div>
         <div class="field-grid three">${field('Setup minutes', 'setupMinutes', plan!.setupMinutes, 'number', 'min="0" max="240"')}${field('Build minutes', 'buildMinutes', plan!.buildMinutes, 'number', 'min="0" max="240"')}${field('Rounds', 'rounds', plan!.rounds, 'number', 'min="1" max="20"')}${field('Round minutes', 'roundMinutes', plan!.roundMinutes, 'number', 'min="1" max="240"')}${field('Changeover minutes', 'breakMinutes', plan!.breakMinutes, 'number', 'min="0" max="60"')}</div>
+        ${plan!.rounds > uniqueRounds ? `<p class="field-help">With ${plan!.players} players, opponents begin repeating after round ${uniqueRounds}.</p>` : ''}
       </section>
       <section aria-labelledby="notes-title"><div class="section-heading"><div><p class="eyebrow">Exception desk</p><h2 id="notes-title">Compatibility and house notes</h2></div></div>
         <label class="field"><span>What must the host check?</span><textarea data-field="compatibilityNotes" rows="6" placeholder="Sleeve groups with different backs. Keep the six marked pieces together. Explain the replacement-token rule before building.">${escapeHtml(plan!.compatibilityNotes)}</textarea></label>
@@ -323,15 +321,16 @@ function updatePlanField(name: string, rawValue: string): void {
 function bindEvents(): void {
   app.querySelectorAll<HTMLElement>('[data-action]').forEach((element) => element.addEventListener('click', handleAction));
   app.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-field]').forEach((element) => {
-    const eventName = element instanceof HTMLInputElement && ['number', 'date', 'time', 'radio'].includes(element.type) ? 'change' : 'input';
+    const eventName = element instanceof HTMLInputElement && element.type === 'radio' ? 'change' : 'input';
     element.addEventListener(eventName, () => {
       updatePlanField(element.dataset.field!, element.value);
-      if (eventName === 'change') renderPlanner();
+      if (element instanceof HTMLInputElement && element.type === 'radio') renderPlanner();
+      else if (element instanceof HTMLInputElement && element.type === 'number') refreshBoard();
     });
   });
   app.querySelectorAll<HTMLInputElement>('[data-item-field]').forEach((element) => {
-    const isText = ['name', 'note'].includes(element.dataset.itemField!);
-    element.addEventListener(isText ? 'input' : 'change', () => {
+    const requiresRender = element.dataset.itemField === 'included';
+    element.addEventListener(requiresRender ? 'change' : 'input', () => {
       if (!plan) return;
       const item = plan.inventory[Number(element.dataset.index)];
       if (!item) return;
@@ -340,10 +339,16 @@ function bindEvents(): void {
       else if (property === 'count') item.count = clampInt(element.value, 0, 1_000_000);
       else item[property] = element.value;
       scheduleSave();
-      if (!isText) renderPlanner();
+      if (requiresRender) renderPlanner();
+      else if (property === 'count') refreshBoard();
     });
   });
   document.querySelector<HTMLInputElement>('#import-file')?.addEventListener('change', importFile);
+}
+
+function refreshBoard(): void {
+  const board = document.querySelector<HTMLElement>('.departure-board');
+  if (board && plan) board.outerHTML = feasibilityCard();
 }
 
 async function handleAction(event: Event): Promise<void> {

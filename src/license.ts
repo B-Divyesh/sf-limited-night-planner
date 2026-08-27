@@ -50,7 +50,7 @@ export function initialLicenseState(): LicenseState {
 
 export function storeLicense(token: string): void {
   localStorage.setItem(LICENSE_KEY, token.trim());
-  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: true, checkedAt: 0, reason: 'pending' }));
+  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: false, checkedAt: 0, reason: 'pending' }));
 }
 
 export async function verifyLicense(force = false): Promise<LicenseState> {
