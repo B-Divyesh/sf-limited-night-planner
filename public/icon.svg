@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Limited Night Planner route mark">
+  <rect width="512" height="512" rx="76" fill="#101827"/>
+  <path d="M76 256h102M334 256h102M256 76v102M256 334v102" stroke="#e0b44c" stroke-width="30"/>
+  <path d="M256 114 398 256 256 398 114 256Z" fill="#f3e8cc" stroke="#e0b44c" stroke-width="18"/>
+  <circle cx="256" cy="256" r="76" fill="#101827"/>
+  <circle cx="256" cy="256" r="38" fill="#e75b3c"/>
+</svg>

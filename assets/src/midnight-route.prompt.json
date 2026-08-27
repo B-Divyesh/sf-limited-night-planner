@@ -1,0 +1,10 @@
+{
+  "asset": "midnight-route.png",
+  "generated": "2026-08-27",
+  "model": "Azure OpenAI factory-image",
+  "tool": "/opt/fleet/lib/gen-image.sh",
+  "size": "1536x1024",
+  "quality": "high",
+  "prompt": "Original wide art-deco transit poster illustration for a tabletop event planning app. Overhead-oblique view of a midnight navy table transformed into an imaginary transit map. Blank unmarked cream card rectangles and simple geometric wooden tokens arrive along thin brass route lines, converge beneath an abstract station clock, then depart as four neat equal player kits. Screen-printed paper texture, stepped geometric framing, sharp 1930s poster shapes, limited palette of midnight navy, warm cream, oxidized brass, and signal red, dramatic pool of warm lamplight, crisp silhouette, generous negative space, sophisticated editorial composition. No humans, no recognizable game pieces, no playing-card suits, no readable text, no letters, no numbers, no logos, no watermark, no brands, no copyrighted characters, no gradients, no photorealism.",
+  "review": "Accepted. No text artifacts, logos, brands, people, card suits, or recognizable proprietary pieces. Blank cards and geometric tokens are intentional generic components."
+}
