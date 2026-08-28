@@ -3,6 +3,9 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const root = new URL('../dist/', import.meta.url).pathname;
+// Azure Static Web Apps consumes this deployment configuration instead of
+// serving it. It belongs in the artifact, but cannot be fetched by a worker.
+const deploymentOnlyFiles = new Set(['staticwebapp.config.json']);
 
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -10,7 +13,12 @@ async function walk(directory) {
   for (const entry of entries) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) files.push(...await walk(path));
-    else if (!['sw.js', '.map'].some((suffix) => entry.name.endsWith(suffix))) files.push(`/${relative(root, path).replaceAll('\\', '/')}`);
+    else {
+      const outputPath = relative(root, path).replaceAll('\\', '/');
+      if (!['sw.js', '.map'].some((suffix) => entry.name.endsWith(suffix)) && !deploymentOnlyFiles.has(outputPath)) {
+        files.push(`/${outputPath}`);
+      }
+    }
   }
   return files;
 }
