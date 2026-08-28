@@ -1,4 +1,16 @@
-# Limited Night Planner — build handoff
+# Limited Night Planner — verification handoff
+
+## Release verdict: **FAIL**
+
+Candidate `16205f47cd48bb2f576d4fb4b90cfd75ce881869` was independently verified on 2026-08-28 against <https://limited-night-planner.sociobot.in/>. The live deployment is byte-for-byte the candidate build, but it must not be released: the in-app service-worker update action does not activate a waiting update, and axe finds a serious contrast failure in the standard Format screen. See [`.factory/verification.md`](./verification.md) for exact commands, reproduction evidence, tested viewports, headers, cache policy, and all defects.
+
+Quality-gate summary: `npm ci`, `npm test` (8/8), `npm run check`, `npm run build`, and `npm run test:e2e` (5/5) passed. Offline saved-plan reload passed on live. Desktop 1440×900 and mobile 390×844 normal workflows passed, but the two High defects and listed Medium/Low defects leave the candidate **FAIL**.
+
+Required remediation: route `SKIP_WAITING` to the waiting worker and test it; fix `.field-help` contrast on paper; provide visible numeric validation and human import errors; configure PWA-appropriate immutable caching, manifest MIME, and response policies. Reverify after a new candidate is deployed.
+
+---
+
+# Original build handoff (superseded by independent verification)
 
 ## Shipped
 
