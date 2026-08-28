@@ -1,6 +1,6 @@
 # Limited Night Planner — repair handoff
 
-## Release verdict: **PASS locally; deployment verification pending**
+## Release verdict: **PASS — deployed**
 
 This repair starts from verifier report commit `c83302c444aef0180345c3ce8367d8a337150026` for candidate `16205f47cd48bb2f576d4fb4b90cfd75ce881869`. It preserves the researched local-first planner and resolves every listed High/Medium/Low finding:
 
@@ -27,7 +27,9 @@ Final production artifact sizes: app JS 33.68 KB raw / 11.66 KB gzip; app CSS 19
 
 ## Deploy and post-deploy checks
 
-Build with `npm run build`, then deploy the repository’s `dist/` using the static work-order target `limited-night-planner`. After deploy, verify the live identity and response headers at <https://limited-night-planner.sociobot.in/>: expected `Content-Security-Policy`, `Permissions-Policy`, `application/manifest+json` manifest response, and immutable `/assets/*` cache policy. Record the live deployment SHA and header evidence here after the deploy completes.
+Deployed `25c9155c365877702dc8dd4d5a8ec2acc8ad6aae` to the static work-order target at <https://limited-night-planner.sociobot.in/> on 2026-08-28 UTC (Azure Static Web Apps deployment `8432ac61-db15-4dfe-b187-8247d67bff1f`). The live `index.html` SHA-256 is `0e12f3a22756930f786e4acdb5ff2ecbc7f5e7bb1a28721394fb071cd42e562d`, exactly matching `dist/index.html`.
+
+`verify-url.sh` returned HTTPS 200 in 995 ms with title, `lang=en`, one `<h1>`, `<main>`, all image alt attributes, zero unlabeled buttons, and zero console/page errors. Live response headers include the configured CSP and Permissions-Policy; `/manifest.webmanifest` is `application/manifest+json`; `/assets/app-Cp1Pq1qb.js` is `public, max-age=31536000, immutable`. A final live Chromium axe run found zero serious/critical findings across Inventory, Format, Schedule, and Host sheet at both 1440×900 and 390×844, with no console/page errors.
 
 ---
 
