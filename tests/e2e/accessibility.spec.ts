@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test('landing and planner have no serious accessibility violations', async ({ page }) => {
+test('landing and every standard planner stop have no serious accessibility violations', async ({ page }) => {
   await page.goto('/');
   let results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
@@ -10,6 +10,12 @@ test('landing and planner have no serious accessibility violations', async ({ pa
   await page.getByRole('button', { name: /add group/i }).click();
   results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+
+  for (const index of [1, 2, 3]) {
+    await page.locator(`.route-nav [data-step="${index}"]`).click();
+    results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+  }
 });
 
 test('primary planner path is keyboard operable', async ({ page }) => {

@@ -29,6 +29,14 @@ test('keyboard reaches planner actions and legal pages exist', async ({ page }) 
   await expect(page.getByRole('heading', { level: 1, name: 'Terms' })).toBeVisible();
 });
 
+test('fresh free use stays on this origin', async ({ page }) => {
+  const origins = new Set<string>();
+  page.on('request', (request) => origins.add(new URL(request.url()).origin));
+  await page.goto('/');
+  await page.waitForTimeout(300);
+  expect([...origins]).toEqual(['http://127.0.0.1:4173']);
+});
+
 test('generates odd-player seating, runs the timer, and exports a host sheet', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('console', (entry) => { if (entry.type() === 'error') browserErrors.push(entry.text()); });
@@ -49,4 +57,29 @@ test('generates odd-player seating, runs the timer, and exports a host sheet', a
   await page.getByRole('button', { name: /export json backup/i }).click();
   await expect((await downloadPromise).suggestedFilename()).toContain('friday-night-limited');
   expect(browserErrors).toEqual([]);
+});
+
+test('immediately corrects out-of-range counts and gives actionable import recovery', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /start a night/i }).click();
+
+  const players = page.getByLabel('Players');
+  await players.fill('65');
+  await expect(players).toHaveValue('64');
+  await expect(page.getByText('Players must be between 2 and 64. Using 64.')).toBeVisible();
+
+  await page.getByRole('button', { name: /add group/i }).click();
+  const count = page.getByRole('spinbutton', { name: 'Count' });
+  await count.fill('1000001');
+  await expect(count).toHaveValue('1000000');
+  await expect(page.getByText('Count must be between 0 and 1,000,000. Using 1,000,000.')).toBeVisible();
+
+  await page.getByRole('button', { name: /host sheet/i }).click();
+  await page.locator('#import-file').setInputFiles({
+    name: 'not-a-plan.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('not json'),
+  });
+  await expect(page.getByRole('status')).toContainText('This file is not valid planner JSON. Choose a JSON backup exported by Limited Night Planner.');
+  await expect(page.getByRole('heading', { level: 1, name: /friday night limited/i })).toBeVisible();
 });

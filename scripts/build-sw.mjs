@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
@@ -16,5 +17,8 @@ async function walk(directory) {
 
 const precache = await walk(root);
 const source = await readFile(new URL('../src/sw-template.js', import.meta.url), 'utf8');
-await writeFile(join(root, 'sw.js'), source.replace('__PRECACHE__', JSON.stringify(precache)), 'utf8');
-console.log(`service worker: ${precache.length} files precached`);
+const version = `lnp-${createHash('sha256').update(JSON.stringify(precache)).digest('hex').slice(0, 12)}`;
+await writeFile(join(root, 'sw.js'), source
+  .replace('__VERSION__', version)
+  .replace('__PRECACHE__', JSON.stringify(precache)), 'utf8');
+console.log(`service worker: ${precache.length} files precached (${version})`);

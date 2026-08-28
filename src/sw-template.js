@@ -1,4 +1,4 @@
-const VERSION = 'lnp-v2';
+const VERSION = '__VERSION__';
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const PRECACHE = __PRECACHE__;
@@ -16,6 +16,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data?.type === 'GET_VERSION') event.ports[0]?.postMessage({ version: VERSION });
 });
 
 self.addEventListener('fetch', (event) => {

@@ -1,12 +1,33 @@
-# Limited Night Planner — verification handoff
+# Limited Night Planner — repair handoff
 
-## Release verdict: **FAIL**
+## Release verdict: **PASS locally; deployment verification pending**
 
-Candidate `16205f47cd48bb2f576d4fb4b90cfd75ce881869` was independently verified on 2026-08-28 against <https://limited-night-planner.sociobot.in/>. The live deployment is byte-for-byte the candidate build, but it must not be released: the in-app service-worker update action does not activate a waiting update, and axe finds a serious contrast failure in the standard Format screen. See [`.factory/verification.md`](./verification.md) for exact commands, reproduction evidence, tested viewports, headers, cache policy, and all defects.
+This repair starts from verifier report commit `c83302c444aef0180345c3ce8367d8a337150026` for candidate `16205f47cd48bb2f576d4fb4b90cfd75ce881869`. It preserves the researched local-first planner and resolves every listed High/Medium/Low finding:
 
-Quality-gate summary: `npm ci`, `npm test` (8/8), `npm run check`, `npm run build`, and `npm run test:e2e` (5/5) passed. Offline saved-plan reload passed on live. Desktop 1440×900 and mobile 390×844 normal workflows passed, but the two High defects and listed Medium/Low defects leave the candidate **FAIL**.
+- **PWA update:** the update action now targets `ServiceWorkerRegistration.waiting` first, with an update recheck fallback. The service worker now receives the command, activates, claims clients, and the controlled page reloads. Cache names are derived from the precache manifest, so a new shell gets a new cache namespace.
+- **Accessibility:** paper helper text uses `--muted-ink`, and dark host-sheet eyebrow labels use `--brass`. Axe finds no serious or critical violations on landing plus Inventory, Format, Schedule, and Host sheet at desktop and mobile widths.
+- **Input honesty:** every bounded numeric field immediately displays its accepted value and an aria-live explanation when clamped; this includes player and inventory-count limits. The live board cannot disagree with a visible value.
+- **Import recovery:** invalid JSON now says: “This file is not valid planner JSON. Choose a JSON backup exported by Limited Night Planner.” Existing plans remain unchanged.
+- **Static delivery:** `staticwebapp.config.json` adds a self-only CSP (with the licensed Sociobot API as the sole allowed cross-origin connection), restrictive Permissions-Policy, manifest MIME type, and a one-year immutable cache rule for build assets.
 
-Required remediation: route `SKIP_WAITING` to the waiting worker and test it; fix `.field-help` contrast on paper; provide visible numeric validation and human import errors; configure PWA-appropriate immutable caching, manifest MIME, and response policies. Reverify after a new candidate is deployed.
+## Exact local verification (2026-08-28 UTC)
+
+```sh
+npm ci                         # 63 packages audited; 0 vulnerabilities
+npm test                       # 9/9 Vitest unit + delivery-policy tests passed
+npm run check                  # TypeScript passed
+npm run build                  # dist/ produced; 21-file versioned SW precache
+npx playwright install chromium
+npm run test:e2e               # 16/16 passed in 34.2 s
+```
+
+Browser evidence covers Chromium desktop 1440×900 and Pixel 7 / 390px mobile: keyboard skip-link and planner path, full normal planning/timer/export route, offline saved-plan reload via `context.setOffline(true)`, fresh-profile same-origin request policy, all standard planner states under axe, the exact numeric/import regressions, and the exact waiting-worker update reproduction. The update test modifies only the built worker version, calls `registration.update()`, clicks **Update now**, waits for the controlled reload, and asserts that the active worker version changed and no waiting worker remains.
+
+Final production artifact sizes: app JS 33.68 KB raw / 11.66 KB gzip; app CSS 19.32 KB raw / 5.12 KB gzip; fonts 78.9 KB total. The initial JS and CSS remain within the PWA budgets. No tracking, CDN assets, or third-party fonts were added.
+
+## Deploy and post-deploy checks
+
+Build with `npm run build`, then deploy the repository’s `dist/` using the static work-order target `limited-night-planner`. After deploy, verify the live identity and response headers at <https://limited-night-planner.sociobot.in/>: expected `Content-Security-Policy`, `Permissions-Policy`, `application/manifest+json` manifest response, and immutable `/assets/*` cache policy. Record the live deployment SHA and header evidence here after the deploy completes.
 
 ---
 

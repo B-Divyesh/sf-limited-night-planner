@@ -39,6 +39,21 @@ let messageKind: 'info' | 'error' = 'info';
 let storageFailed = false;
 let isOffline = !navigator.onLine;
 let updateRequested = false;
+let serviceWorkerRegistration: ServiceWorkerRegistration | null = null;
+
+const numericBounds: Record<string, [number, number]> = {
+  players: [2, 64],
+  packsPerPlayer: [1, 99],
+  componentsPerPack: [1, 999],
+  componentsPerPlayer: [1, 9_999],
+  reserve: [0, 99_999],
+  setupMinutes: [0, 240],
+  buildMinutes: [0, 240],
+  rounds: [1, 20],
+  roundMinutes: [1, 240],
+  breakMinutes: [0, 60],
+  count: [0, 1_000_000],
+};
 
 const steps = ['Inventory', 'Format', 'Schedule', 'Host sheet'];
 
@@ -162,7 +177,10 @@ function renderPlanner(): void {
 }
 
 function field(label: string, name: string, value: string | number, type = 'text', attrs = ''): string {
-  return `<label class="field"><span>${label}</span><input type="${type}" name="${name}" data-field="${name}" value="${escapeHtml(value)}" ${attrs} /></label>`;
+  const validation = type === 'number'
+    ? `<small class="field-validation" id="${name}-validation" data-validation="${name}" aria-live="polite"></small>`
+    : '';
+  return `<label class="field"><span>${label}</span><input type="${type}" name="${name}" data-field="${name}" value="${escapeHtml(value)}" ${validation ? `aria-describedby="${name}-validation"` : ''} ${attrs} />${validation}</label>`;
 }
 
 function inventoryView(): string {
@@ -188,7 +206,7 @@ function inventoryRow(item: InventoryItem, index: number): string {
   return `<div class="inventory-row" data-item-id="${escapeHtml(item.id)}">
     <label class="check-field"><input type="checkbox" data-item-field="included" data-index="${index}" ${item.included ? 'checked' : ''} /><span class="check-box" aria-hidden="true"></span><span class="sr-only">Include group ${index + 1}</span></label>
     <label class="field compact"><span>Group name</span><input data-item-field="name" data-index="${index}" value="${escapeHtml(item.name)}" maxlength="80" /></label>
-    <label class="field compact count"><span>Count</span><input type="number" data-item-field="count" data-index="${index}" value="${item.count}" min="0" max="1000000" inputmode="numeric" /></label>
+    <label class="field compact count"><span>Count</span><input type="number" data-item-field="count" data-index="${index}" value="${item.count}" min="0" max="1000000" inputmode="numeric" aria-describedby="count-${index}-validation" /><small class="field-validation" id="count-${index}-validation" data-validation="count-${index}" aria-live="polite"></small></label>
     <label class="field compact note"><span>Compatibility note</span><input data-item-field="note" data-index="${index}" value="${escapeHtml(item.note)}" maxlength="300" placeholder="e.g. different backs" /></label>
     <button class="icon-button" data-action="remove-item" data-index="${index}" aria-label="Remove ${escapeHtml(item.name || `group ${index + 1}`)}">×</button>
   </div>`;
@@ -309,13 +327,25 @@ function updatePlanField(name: string, rawValue: string): void {
   if (name === 'playerNames') plan.playerNames = rawValue.split('\n').map((value) => value.trim()).filter(Boolean).slice(0, 64);
   else if (name === 'mode' && (rawValue === 'packs' || rawValue === 'pools')) plan.mode = rawValue;
   else if (numeric.includes(name as keyof Plan)) {
-    const bounds: Record<string, [number, number]> = { players: [2, 64], reserve: [0, 99999], setupMinutes: [0, 240], buildMinutes: [0, 240], breakMinutes: [0, 60], rounds: [1, 20] };
-    const [min, max] = bounds[name] ?? [1, 9999];
+    const [min, max] = numericBounds[name];
     (plan as unknown as Record<string, number>)[name] = clampInt(rawValue, min, max);
   } else if (['eventName', 'eventDate', 'startTime', 'compatibilityNotes', 'hostNotes'].includes(name)) {
     (plan as unknown as Record<string, string>)[name] = rawValue;
   }
   scheduleSave();
+}
+
+function reflectNumericValidation(input: HTMLInputElement, key: string, rawValue: string): void {
+  const [min, max] = numericBounds[key];
+  const value = clampInt(rawValue, min, max);
+  const parsed = Number.parseInt(rawValue, 10);
+  const valid = Number.isFinite(parsed) && parsed >= min && parsed <= max;
+  const message = valid ? '' : `${input.labels?.[0]?.querySelector('span')?.textContent ?? 'This value'} must be between ${min.toLocaleString()} and ${max.toLocaleString()}. Using ${value.toLocaleString()}.`;
+  input.value = String(value);
+  input.setAttribute('aria-invalid', String(!valid));
+  const suffix = input.dataset.index === undefined ? key : `${key}-${input.dataset.index}`;
+  const feedback = document.querySelector<HTMLElement>(`[data-validation="${suffix}"]`);
+  if (feedback) feedback.textContent = message;
 }
 
 function bindEvents(): void {
@@ -325,7 +355,10 @@ function bindEvents(): void {
     element.addEventListener(eventName, () => {
       updatePlanField(element.dataset.field!, element.value);
       if (element instanceof HTMLInputElement && element.type === 'radio') renderPlanner();
-      else if (element instanceof HTMLInputElement && element.type === 'number') refreshBoard();
+      else if (element instanceof HTMLInputElement && element.type === 'number') {
+        reflectNumericValidation(element, element.dataset.field!, element.value);
+        refreshBoard();
+      }
     });
   });
   app.querySelectorAll<HTMLInputElement>('[data-item-field]').forEach((element) => {
@@ -340,7 +373,10 @@ function bindEvents(): void {
       else item[property] = element.value;
       scheduleSave();
       if (requiresRender) renderPlanner();
-      else if (property === 'count') refreshBoard();
+      else if (property === 'count') {
+        reflectNumericValidation(element, 'count', element.value);
+        refreshBoard();
+      }
     });
   });
   document.querySelector<HTMLInputElement>('#import-file')?.addEventListener('change', importFile);
@@ -392,7 +428,13 @@ async function handleAction(event: Event): Promise<void> {
     await deleteArchive(target.dataset.id!); archives = await listArchives(); setMessage('Archived plan removed.'); renderPlanner();
   } else if (action === 'apply-update') {
     updateRequested = true;
-    navigator.serviceWorker.controller?.postMessage({ type: 'SKIP_WAITING' });
+    const worker = serviceWorkerRegistration?.waiting ?? navigator.serviceWorker.controller;
+    if (worker) worker.postMessage({ type: 'SKIP_WAITING' });
+    else {
+      updateRequested = false;
+      setMessage('Checking for the fresh version again.');
+      void serviceWorkerRegistration?.update();
+    }
   }
 }
 
@@ -458,7 +500,14 @@ async function importFile(event: Event): Promise<void> {
   if (!file) return;
   try {
     if (file.size > 2_000_000) throw new Error('That file is too large. Choose a planner JSON export under 2 MB.');
-    const imported = validatePlan(JSON.parse(await file.text()));
+    const source = await file.text();
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(source);
+    } catch {
+      throw new Error('This file is not valid planner JSON. Choose a JSON backup exported by Limited Night Planner.');
+    }
+    const imported = validatePlan(parsed);
     plan = imported; await saveCurrentPlan(plan); setMessage('Plan imported and saved on this device.'); renderPlanner();
   } catch (error) {
     setMessage(error instanceof Error ? error.message : 'Could not import that plan.', 'error');
@@ -481,18 +530,22 @@ function registerServiceWorker(): void {
   const register = async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
+      serviceWorkerRegistration = registration;
+      const offerUpdate = () => {
+        if (!registration.waiting || !navigator.serviceWorker.controller) return;
+        message = 'A fresh timetable is ready.';
+        const region = document.querySelector('#announcer');
+        if (region) region.innerHTML = 'A fresh version is ready. <button data-action="apply-update">Update now</button>';
+        region?.classList.add('is-visible');
+        region?.querySelector('[data-action]')?.addEventListener('click', handleAction);
+      };
       registration.addEventListener('updatefound', () => {
         const worker = registration.installing;
         worker?.addEventListener('statechange', () => {
-          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-            message = 'A fresh timetable is ready.';
-            const region = document.querySelector('#announcer');
-            if (region) region.innerHTML = 'A fresh version is ready. <button data-action="apply-update">Update now</button>';
-            region?.classList.add('is-visible');
-            region?.querySelector('[data-action]')?.addEventListener('click', handleAction);
-          }
+          if (worker.state === 'installed') offerUpdate();
         });
       });
+      offerUpdate();
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (updateRequested) location.reload();
       });
