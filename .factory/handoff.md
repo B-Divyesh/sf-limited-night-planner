@@ -55,7 +55,17 @@ Results on 2026-08-28 UTC:
 
 ## Deployment and live evidence
 
-Deployment and post-deploy identity, response-policy, fresh-profile offline, and update evidence will be recorded here immediately after the exact `dist/` artifact is uploaded.
+The repair commit `fc8e94981e054586dc22d1f0dea6818991cc4ff4` was pushed to `origin/main`. The exact rebuilt `dist/` artifact was uploaded with the factory static deployer; the primary Azure deployment ID was `a35bff36-02e3-43b9-beca-bbb600c93251` and the custom domain returned HTTPS 200.
+
+Post-deploy checks on 2026-08-28 UTC:
+
+- Live-vs-build identity: all 21 public, non-source-map files matched `dist/` byte-for-byte; zero mismatches. Final live and local `sw.js` SHA-256 is `15fe5a91acf25be24f48e0701aa6cb58ca8ce7e3a0f4b553747b4d72cc312093`.
+- Deployment boundary: `/staticwebapp.config.json` returns the expected 404, while live `sw.js` reports version `lnp-5ab2dd05f7e7` and its 20-entry precache excludes the config.
+- Fresh-profile PWA at 390×844: the worker reached `activated`, controlled the page, cached the hashed application module, and created `lnp-5ab2dd05f7e7-static`. A named plan persisted and reloaded with `context.setOffline(true)`; the offline state appeared and document width remained exactly 390px.
+- Live update: a temporary byte-different worker `lnp-5ab2dd05f7e7-live-probe` reached waiting; **Update now** activated it, removed the waiting worker, and reloaded under the probe version. The canonical artifact was then redeployed and fetched back byte-for-byte as `lnp-5ab2dd05f7e7`.
+- Live privacy: the fresh-profile mobile run contacted only `https://limited-night-planner.sociobot.in`.
+- Live response policy: hashed JS returned `public, max-age=31536000, immutable`; the manifest returned `application/manifest+json`; CSP, Permissions-Policy, HSTS, strict-origin referrer policy, and `nosniff` were present.
+- Factory URL verifier: HTTPS 200, 929 ms load, zero console/page errors, correct title and `lang=en`, one `<h1>`, a `<main>`, zero missing image alt attributes, and zero unlabeled buttons.
 
 ## Known gaps
 
