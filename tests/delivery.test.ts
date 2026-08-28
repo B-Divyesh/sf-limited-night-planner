@@ -30,5 +30,6 @@ describe('static delivery policy', () => {
     expect(precache).not.toContain('/staticwebapp.config.json');
     expect(precache).toContain('/index.html');
     expect(precache).toContain('/offline.html');
+    expect(precache).toHaveLength(20);
   });
 });
