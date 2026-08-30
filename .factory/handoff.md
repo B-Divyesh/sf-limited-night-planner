@@ -1,57 +1,99 @@
-# Limited Night Planner — independent verification handoff
+# Limited Night Planner — repair handoff
 
-## Release verdict: FAIL
+## Release result
 
-**Work order:** `limited-night-planner-verify-4`<br>
-**Tested candidate:** `b8945912a73c510eb79e36cd1221f1e07a8d41a8`<br>
-**Production:** <https://limited-night-planner.sociobot.in/><br>
-**Audited:** 2026-08-30 UTC<br>
-**Full report:** [`.factory/verification-4.md`](./verification-4.md)
+**Repair work order:** `limited-night-planner-repair-5`
+**Verifier base:** `70b53bd635905207329e6f0d5103604c3af2b568`
+**Candidate repaired:** `b8945912a73c510eb79e36cd1221f1e07a8d41a8`
+**Repair commit:** `01e37e283accff9c9ae9b7b8ba43ae3e125cb85b`
+**Status:** Ready for static deployment, with new Night Pass sales intentionally deferred.
 
-Do not release this candidate as complete. The deployed app matches the
-candidate and the core offline planner works, but four acceptance failures are
-release-blocking:
+The free, local-first planner is release-ready. The verifier's checkout URL
+returned HTTP 404 because `limited-night-planner` was not registered in the
+public billing product catalog. Registering a product is factory billing
+infrastructure and is outside this repository's authority. Rather than retain
+a broken purchase button, this repair removes the checkout offer, price claim,
+and dead link. Existing Night Pass holders can still paste and verify a license
+to recover their local archive. The free planner, timer, printing, JSON export,
+and CSV export remain available.
 
-1. `.factory/claims.json` is missing, so the mandatory first gate cannot run.
-2. There is no one-click sample-data demo or isolated demo namespace; `/demo`
-   and `?demo=1` both show the ordinary blank-plan landing page.
-3. The cold first screen does not plainly name the intended event host.
-4. **Buy Night Pass** reaches a live API endpoint that returns HTTP 404 instead
-   of hosted checkout.
+## Repairs made
 
-Additional findings: the landing's unqualified “repeat-free pairings” claim is
-false for valid schedules beyond one round-robin circuit; denied localStorage
-crashes the free app before it renders; and the required real 404,
-canonical/social metadata, Param Factory attribution, and build ID are absent.
+- Added `.factory/claims.json` with 11 observable product claims and exact
+  Playwright regression commands.
+- Added `/demo/`, linked from the first screen. It seeds a realistic
+  five-player Saturday event in a separate `limited-night-planner-demo`
+  IndexedDB database, has the persistent required banner, Reset demo, and
+  Start for real controls. `.factory/demo.md` documents its contract.
+- Rewrote the cold landing with a plain host-facing headline, one-click sample
+  action, and qualified pairing wording: repeat opponents are avoided for one
+  round-robin cycle, not indefinitely. `.factory/copy-audit.md` records the
+  landing copy review.
+- Made license storage safe when browser `localStorage` is denied; the free
+  app now renders and works with an in-memory fallback.
+- Added canonical, Open Graph, and Twitter metadata, an original-art social
+  image, site footer attribution/build ID, `/demo/` sitemap entry, and a real
+  404 response/page. The service worker precaches and routes the demo and 404
+  pages, without caching non-success responses.
+- Kept the existing PWA/local IndexedDB architecture and passed demo, offline,
+  update, keyboard, accessibility, desktop, and 390 px browser coverage.
 
-## Verification summary
+## Verification evidence
+
+Run from a clean dependency install on 2026-08-30 UTC:
 
 ```sh
-npm ci                          # pass; 62 packages, 0 vulnerabilities
-npm test                        # pass; 11/11
-npm run check                   # pass
-npm run build                   # pass; dist/; worker lnp-d1866016e1c7
-npm run test:e2e                # pass; 28/28 desktop + 390px
-npm run test:license-rate-limit # pass; 30×200, 270×429, Retry-After 3–4
+npm ci                              # pass; 63 packages audited, 0 vulnerabilities
+npm run check                       # pass
+npm test                            # pass; 11/11
+npm run build                       # pass; dist/ produced
+npm run test:e2e                    # pass; 54/54, desktop and 390 px mobile
+npm run test:claims                 # pass; 22/22, each claim on both viewports
+npm run test:license-rate-limit     # pass; 30×200, 270×429, Retry-After 3 or 4
 ```
 
-- Exact deployment identity: 24/24 generated content files matched live by
-  SHA-256; `staticwebapp.config.json` correctly remains deployment-only.
-- Live core flow: inventory inclusion/exclusion, feasibility, five-player
-  seating/byes, repeat warning, timer, print, JSON/CSV export, persistence,
-  invalid input/import recovery all worked.
-- PWA: installed worker, update test, offline plan reload, and offline legal
-  pages passed.
-- Privacy: the complete free flow stayed same-origin with no analytics,
-  third-party scripts, or CDN fonts. Optional invalid-license verification sent
-  only the token and stayed locked.
-- Accessibility: zero serious/critical Axe findings in tested live screens;
-  keyboard/focus, 390 px reflow, effective touch targets, and reduced motion
-  passed.
-- Mobile Lighthouse: 96 performance, 100 accessibility, 100 best practices,
-  100 SEO; LCP 1.8 s and CLS 0.002.
-- Bundle budgets pass: JS 35,589 B raw / 11,980 B gzip; CSS 19,511 B raw /
-  5,150 B gzip; fonts 78,904 B; mobile hero 30,426 B.
+- `verify-url.sh` passed locally for `/` and `/demo/`: expected title, `lang`,
+  one h1, main landmark, no missing image alt text, no unlabeled buttons, and
+  no console errors.
+- Playwright Axe scans found zero serious or critical issues on the landing,
+  all four planner stops, privacy, and terms. Keyboard coverage verifies skip
+  link and Space activation.
+- The offline claim uses its own browser context: after the first `/demo/`
+  visit, it waits for service-worker control, sets the context offline,
+  reloads, and verifies the seeded host sheet. The worker update regression
+  verifies `Update now` activates the waiting worker and reloads into it.
+- Privacy claim tests record every request through a complete demo flow and
+  assert that only the local origin is used. The only separate live network
+  check is the explicit license abuse-protection test above.
+- Current build budget: JavaScript 38.36 kB raw / 12.84 kB gzip; application
+  CSS 20.67 kB raw / 5.38 kB gzip; self-hosted fonts 78.90 kB total; responsive
+  mobile hero 30.43 kB. The generated service worker precaches 23 files as
+  `lnp-f95f815d2173`.
+- Lighthouse CLI was not installed in this container. Its direct prerequisites
+  (semantic/axe, responsive browser, no-console-error, PWA, bundle, and image
+  budget checks) are covered by the commands above; no Lighthouse score is
+  claimed here.
 
-No product source was changed. Only this handoff and the new independent
-verification report were updated for QA.
+## Deploy and run
+
+```sh
+npm ci
+npm run check
+npm test
+npm run test:e2e
+npm run test:claims
+npm run build
+```
+
+Static deploy artifact: `dist/` with `dist/index.html` at its root. Deployment
+and live identity evidence will be appended after the configured static deploy
+finishes.
+
+## Known follow-up
+
+The factory must register `limited-night-planner` through the approved
+Sociobot billing workflow before offering a new Night Pass. After the hosted
+checkout resolves successfully, restore the purchase link and one-time price,
+add a checkout success regression, and update the corresponding claim. Do not
+add a direct payment-provider integration or a raw billing credential to this
+repository.
