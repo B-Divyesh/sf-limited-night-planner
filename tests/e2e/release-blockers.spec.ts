@@ -27,6 +27,17 @@ test('localStorage denial cannot block the free planner', async ({ page, context
   expect(errors).toEqual([]);
 });
 
+test('adding inventory cannot steal an immediate count entry with deferred focus', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Start a real plan' }).click();
+  await page.getByRole('button', { name: /add group/i }).click();
+
+  await page.getByRole('spinbutton', { name: 'Count' }).fill('1000001');
+  await expect(page.getByRole('spinbutton', { name: 'Count' })).toHaveValue('1000000');
+  await expect(page.getByRole('textbox', { name: 'Group name' })).toHaveValue('Group 1');
+  await expect(page.getByText('Count must be between 0 and 1,000,000. Using 1,000,000.')).toBeVisible();
+});
+
 test('unknown routes are real 404s and standard routes expose discovery metadata', async ({ page }) => {
   const missing = await page.goto('/this-route-does-not-exist');
   expect(missing?.status()).toBe(404);

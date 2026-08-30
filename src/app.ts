@@ -443,7 +443,9 @@ async function handleAction(event: Event): Promise<void> {
   } else if (action === 'add-item') {
     plan?.inventory.push({ id: crypto.randomUUID(), name: `Group ${(plan?.inventory.length ?? 0) + 1}`, count: 0, included: true, note: '' });
     scheduleSave(); renderPlanner();
-    requestAnimationFrame(() => app.querySelector<HTMLInputElement>('.inventory-row:last-child input[data-item-field="name"]')?.select());
+    // Focus synchronously. A deferred rAF focus can land after a user starts
+    // typing into Count and redirect the typed value to the group-name field.
+    app.querySelector<HTMLInputElement>('.inventory-row:last-child input[data-item-field="name"]')?.select();
   } else if (action === 'remove-item') {
     plan?.inventory.splice(Number(target.dataset.index), 1); scheduleSave(); renderPlanner();
   } else if (action === 'reset-plan') {
