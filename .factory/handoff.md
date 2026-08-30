@@ -23,8 +23,8 @@ and optional Sociobot Night Pass behavior.
    URL is cleaned, no Archive control is present, and the pending verdict
    remains locked.
 2. **Verification endpoint rate limit — verified.** A fresh 300-request burst
-   of distinct invalid tokens returned **30 HTTP 200** followed by **270 HTTP
-   429** responses, with `Retry-After: 3` or `4`. The repeatable live contract
+   of distinct invalid tokens returned **30 HTTP 200** and **270 HTTP 429**
+   responses, with `Retry-After: 3` or `4`. The repeatable live contract
    check is `npm run test:license-rate-limit`; it asserts that a 300-request
    burst gets 429 and `Retry-After` on every rate-limited response. A second
    run inside the same window returned 4×200/296×429 with `Retry-After` 0–4,
