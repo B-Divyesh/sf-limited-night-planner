@@ -85,9 +85,27 @@ npm run test:claims
 npm run build
 ```
 
-Static deploy artifact: `dist/` with `dist/index.html` at its root. Deployment
-and live identity evidence will be appended after the configured static deploy
-finishes.
+Static deploy artifact: `dist/` with `dist/index.html` at its root.
+
+## Deployment and live evidence
+
+Deployed 2026-08-30 UTC through the configured Azure Static Web Apps workflow.
+Deployment ID: `47b981fd-323a-47c4-987f-9d19cabeae80`. The configured custom
+domain <https://limited-night-planner.sociobot.in/> returned HTTPS 200 after
+the upload.
+
+- Live `/` and `/demo/` returned 200; an unknown route returned 404 and served
+  the designed 404 page. `cmp` confirmed that all three live HTML responses
+  exactly matched `dist/index.html`, `dist/demo/index.html`, and `dist/404.html`.
+- Live `verify-url.sh` checks passed: root load 714 ms and demo load 788 ms;
+  each had the expected title, `lang=en`, one h1, a main landmark, zero missing
+  alt text, zero unlabeled buttons, and zero console errors.
+- Live headers include the configured CSP, `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy: strict-origin-when-cross-origin`, and Permissions-Policy.
+- A live 390 px Chromium smoke test focused the skip link first, found no
+  horizontal overflow, opened the sample host sheet, reloaded under service
+  worker control, observed no page errors, and recorded only
+  `https://limited-night-planner.sociobot.in` requests.
 
 ## Known follow-up
 
