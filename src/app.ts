@@ -30,7 +30,7 @@ import {
 } from './license';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD_ID = '1.0.1-repair-5';
+const BUILD_ID = '1.0.2-repair-6';
 const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
 const demoMode = normalizedPath === '/demo' || new URL(location.href).searchParams.get('demo') === '1';
 let plan: Plan | null = null;

@@ -8,7 +8,7 @@ test('a newly returned unverified license stays locked when its first verificati
 
   await expect(page).toHaveURL(/^(?!.*license=)/);
   await expect(page.getByRole('button', { name: /archive current plan/i })).toHaveCount(0);
-  await expect(page.getByText('Could not verify this Night Pass while offline. Your free planner still works.')).toBeVisible();
+  await expect(page.getByText('Could not verify this Night Pass right now. Check your connection and try again; your free planner still works.')).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('sb_license_verdict:limited-night-planner'))).toBe(
     JSON.stringify({ valid: false, checkedAt: 0, reason: 'pending' }),
   );

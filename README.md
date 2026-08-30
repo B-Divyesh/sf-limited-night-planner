@@ -42,10 +42,11 @@ npm run test:claims
 npm run build
 ```
 
-The billing service's live abuse-protection contract has a separate, intentional
-network check. It sends 300 distinct invalid verification tokens and expects
-HTTP 429 responses with `Retry-After`; run it only when checking the deployed
-Sociobot billing endpoint:
+The billing service's live contract has a separate, intentional network check.
+It checks browser-origin CORS, a normal readable invalid-token response, then
+sends 300 distinct invalid verification tokens and expects rapid requests to
+receive HTTP 429 responses with `Retry-After`; run it only when checking the
+deployed Sociobot billing endpoint:
 
 ```sh
 npm run test:license-rate-limit

@@ -131,7 +131,7 @@ export async function verifyLicense(force = false): Promise<LicenseState> {
       checking: false,
       notice: hasVerifiedPass(cached)
         ? 'Offline: using your last verified Night Pass.'
-        : 'Could not verify this Night Pass while offline. Your free planner still works.',
+        : 'Could not verify this Night Pass right now. Check your connection and try again; your free planner still works.',
     };
   }
 }

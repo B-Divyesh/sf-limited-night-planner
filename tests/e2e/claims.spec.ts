@@ -118,13 +118,57 @@ test('@claim:free-core-tools are available without a license', async ({ page }) 
 });
 
 test('@claim:night-pass-sales-unavailable does not advertise a broken checkout', async ({ page }) => {
+  const validLicenseResponse = await readFile(new URL('../fixtures/license-valid.json', import.meta.url), 'utf8');
+  let verificationRequest = '';
+  await page.context().route('https://api.sociobot.in/api/v1/products/limited-night-planner/verify**', async (route) => {
+    verificationRequest = route.request().url();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'Access-Control-Allow-Origin': 'http://127.0.0.1:4173' },
+      body: validLicenseResponse,
+    });
+  });
   await page.goto('/');
   await page.getByRole('button', { name: 'Start a real plan' }).click();
   await page.getByRole('button', { name: '04 Host sheet' }).click();
   await expect(page.getByText('New Night Pass purchases are not available yet.')).toBeVisible();
   await expect(page.locator('a[href*="/checkout"]')).toHaveCount(0);
   await page.getByText('Have an existing license? Restore it').click();
-  await expect(page.getByRole('button', { name: 'Verify license' })).toBeVisible();
+  await page.getByLabel('License token').fill('recorded-existing-pass');
+  await page.getByRole('button', { name: 'Verify license' }).click();
+  await expect(page.getByText('Night Pass restored on this device.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Archive current plan' })).toBeVisible();
+  expect(verificationRequest).toBe('https://api.sociobot.in/api/v1/products/limited-night-planner/verify?license=recorded-existing-pass');
+  await page.getByRole('button', { name: 'Archive current plan' }).click();
+  await expect(page.getByText('Plan archived on this device.')).toBeVisible();
+});
+
+test('@claim:round-cycle-warning warns before a five-player schedule starts repeating opponents', async ({ page }) => {
+  await openDemo(page);
+  await page.getByRole('button', { name: '02 Format' }).click();
+  await page.getByLabel('Rounds').fill('6');
+  await expect(page.locator('#repeat-opponent-guidance')).toHaveText('With 5 players, opponents begin repeating after round 5.');
+});
+
+test('@claim:offline-export downloads the CSV host sheet after the demo is offline', async ({ browser }) => {
+  const context = await browser.newContext({ baseURL: 'http://127.0.0.1:4173' });
+  const page = await context.newPage();
+  try {
+    await page.goto('/demo/');
+    await page.evaluate(async () => { await navigator.serviceWorker.ready; });
+    await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.getByText(/offline service/i)).toBeVisible();
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /^export csv$/i }).click();
+    const path = await (await downloadPromise).path();
+    expect(path).not.toBeNull();
+    expect(await readFile(path!, 'utf8')).toContain('"Round","Start","End","Table","Player A","Player B"');
+  } finally {
+    await context.close();
+  }
 });
 
 test('@claim:offline-after-first-visit reloads the demo in its own offline browser context', async ({ browser }) => {

@@ -1,68 +1,104 @@
-# Limited Night Planner — independent verification 5 handoff
+# Limited Night Planner — repair handoff 6
 
 ## Release result
 
-**Status: FAIL — do not release as complete.**
+**Status: ready for static deployment.**
 
-- Candidate: `cfdf33eca91d2f1ad401a7d61235c2145cdcc632`
-- Live URL: <https://limited-night-planner.sociobot.in/>
-- Audited: 2026-08-30 UTC
-- Full report: [`.factory/verification-5.md`](./verification-5.md)
+- Work order: `limited-night-planner-repair-6`
+- Verifier report repaired: `093eda1a13f5f51a5880dd7492e3d1a11fcab236`
+- Verified candidate: `cfdf33eca91d2f1ad401a7d61235c2145cdcc632`
+- Artifact: static offline PWA; deployment artifact is `dist/` with
+  `dist/index.html` at its root.
 
-The live static deployment matches all 30 public candidate output files
-byte-for-byte. The first-read/demo gates, core planner, offline PWA, mobile and
-keyboard use, accessibility, privacy, headers, build, and performance checks
-pass. The release fails because its only external product endpoint is not
-operational and does not demonstrate the mandatory abuse limit.
+## Release-blocking repairs
 
-## Release-blocking evidence
+1. **Existing Night Pass restoration now has an outcome regression, not a
+   control-presence check.** The report correctly found that the old claim test
+   only proved that a Restore button existed. The `@claim:night-pass-sales-unavailable`
+   test now intercepts the exact Sociobot verification URL with the recorded
+   valid response in `tests/fixtures/license-valid.json`, submits an existing
+   pass, asserts the restored notice and Archive action, and archives the
+   current plan. It also still proves that no checkout link is advertised.
 
-`npm run test:license-rate-limit` sent 300 distinct invalid-token requests to
-the documented Sociobot verification endpoint. Every request returned HTTP
-503. None returned 429 and none supplied `Retry-After`, so no request allowance
-could be observed.
+2. **The live billing contract is asserted at the boundary.** The reported 503
+   was no longer reproducible during this repair: the deployed Sociobot endpoint
+   now returned readable CORS JSON for an invalid pass. The strengthened
+   `npm run test:license-rate-limit` performs an OPTIONS preflight for
+   `https://limited-night-planner.sociobot.in`, requires an invalid-token JSON
+   response, then sends 300 distinct invalid tokens and requires HTTP 429 plus
+   `Retry-After` on every limited response. This is an external service check;
+   no payment credentials or payment-provider integration were added to the
+   static PWA. When a check cannot complete, the app now says to check the
+   connection and retry instead of incorrectly calling every failure “offline.”
 
-The live browser restore flow also fails. It sends the token only to
-`api.sociobot.in`, receives an unreadable CORS-failed 503, leaves archive access
-locked, and reports that verification is unavailable. This contradicts the
-listed claim that existing passes can still be restored. The tagged claim test
-only checks that the restore button exists; it does not prove restoration.
+3. **Every remaining claim sentence is mapped to an observable demo test.**
+   `.factory/claims.json` now includes `round-cycle-warning` and
+   `offline-export`. Their independent browser regressions respectively make
+   the five-player sample schedule six rounds and download its CSV after a
+   service-worker-controlled offline reload.
 
-The claims manifest also omits separate observable mappings for the README's
-round-cycle warning and the UI's offline-export sentence.
+All planner behavior that passed verification remains intact: isolated demo
+data, local IndexedDB plans, timer, seating, print, JSON/CSV export, PWA
+offline/update flow, responsive layout, keyboard operation, and legal routes.
 
-## Verification summary
+## Verification evidence
 
-```text
-npm ci                              PASS — 63 packages audited, 0 vulnerabilities
-npm test                            PASS — 11/11
-npm run check                       PASS
-npm run build                       PASS — dist/, worker lnp-112086bbd2ef
-npm run test:e2e                    PASS — 58/58 desktop and 390 px
-11 exact claims.json commands       PASS after clean install
-npm run test:license-rate-limit     FAIL — 300×503, 0×429
+Run on 2026-08-30 UTC after a clean locked install:
+
+```sh
+npm ci                              # pass; 62 packages added, 63 audited, 0 vulnerabilities
+npm run check                       # pass
+npm test                            # pass; 11/11
+npm run test:e2e                    # pass; 62/62, desktop and 390 px mobile
+npm run test:claims                 # pass; 26/26, desktop and 390 px mobile
+npm run build                       # pass; dist/ produced
+npm run test:license-rate-limit     # pass; CORS 200, 30×200 invalid JSON, 270×429 with Retry-After 4/3
 ```
 
-Fresh live evidence:
+Each of the 13 exact commands in `.factory/claims.json` was also run
+separately and passed in both Playwright projects. The offline claim tests use
+their own browser context and close only that context.
 
-- first screen plainly states the job, host audience, and sample-data action;
-- one click opens the isolated five-player demo with reset/exit banner;
-- normal five-player plan: 300 usable / 237 needed / 63 spare, 10 unique
-  pairings, five byes, persistent data, timer, print, JSON, and 26-row CSV;
-- invalid/boundary inputs recover with clear messages at 390 px;
-- zero serious/critical Axe findings on every primary view and legal page;
-- offline demo/legal reload and service-worker update test pass;
-- same-origin-only request log during free/demo use; security headers present;
-- Lighthouse mobile: 91 performance, 100 accessibility, 100 best practices,
-  100 SEO; LCP 1.7 s and CLS 0.003;
-- JS 38,334 B raw, CSS 20,667 B raw, fonts 78,904 B, mobile hero 30,426 B.
+- The project’s Playwright Axe scans passed with zero serious or critical
+  findings on the landing, all planner stops, Privacy, and Terms. Keyboard
+  coverage verifies the skip link and Space activation. The standalone Axe CLI
+  could not launch in this container because its bundled ChromeDriver supports
+  Chrome 152 while the supplied Playwright Chromium is 145; the project’s
+  Playwright Axe integration is the supported browser scanner used here.
+- `/opt/fleet/lib/verify-url.sh` passed against the production-faithful local
+  build for `/`, `/demo/`, `/privacy/`, and `/terms/`: each returned 200 with
+  its expected title, `lang=en`, one h1, a main landmark, zero missing image
+  alt attributes, zero unlabeled buttons, and zero browser console errors.
+  Desktop load samples were 672 ms, 709 ms, 561 ms, and 556 ms respectively.
+- The complete browser suite covers desktop plus 390×844 mobile, invalid input
+  recovery, touch targets, keyboard, service-worker updates, offline reload,
+  and same-origin-only free/demo request flows.
+- Final build budget: JavaScript 38,367 B raw / 12.84 kB gzip; application CSS
+  20,667 B raw / 5.38 kB gzip; self-hosted fonts 78,904 B; mobile hero 30,426 B.
+  The generated worker `lnp-59a0f29454a6` precaches 23 files. Lighthouse CLI
+  could not use the container’s non-stable Playwright Chromium; no new
+  Lighthouse score is claimed.
 
-## Required follow-up
+## Run and deploy
 
-Restore the Sociobot verification deployment with CORS, enforce a documented
-per-client limit that returns 429 plus `Retry-After`, and rerun the live rate
-test. Then make the existing-pass claim test submit a valid recorded fixture
-and assert that archive access is actually restored. Add or narrow the two
-unmapped claim sentences before reverification.
+```sh
+npm ci
+npm run check
+npm test
+npm run test:e2e
+npm run test:claims
+npm run build
+npm run test:license-rate-limit
+```
 
-No product code was changed during this verification.
+Deploy the generated `dist/` with the configured static deployment command:
+
+```sh
+/opt/fleet/lib/deploy-static.sh limited-night-planner dist
+```
+
+## Known gaps
+
+None in the product repair. New Night Pass sales intentionally remain absent
+until the factory registers a checkout product. Existing pass restoration uses
+the approved Sociobot verification API only.
