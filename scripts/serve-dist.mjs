@@ -38,8 +38,17 @@ createServer(async (request, response) => {
   const pathname = new URL(request.url ?? '/', 'http://127.0.0.1').pathname;
   const path = await publicFile(pathname);
   if (!path) {
-    response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-    response.end('Not found');
+    const notFound = await publicFile('/404.html');
+    if (!notFound) {
+      response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      response.end('Not found');
+      return;
+    }
+    response.writeHead(404, {
+      'Cache-Control': 'no-cache',
+      'Content-Type': contentTypes.get(extname(notFound)) ?? 'text/html; charset=utf-8',
+    });
+    if (request.method !== 'HEAD') createReadStream(notFound).pipe(response);
     return;
   }
   response.writeHead(200, {

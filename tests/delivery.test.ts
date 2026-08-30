@@ -12,6 +12,7 @@ describe('static delivery policy', () => {
       globalHeaders: Record<string, string>;
       mimeTypes: Record<string, string>;
       routes: Array<{ route: string; headers: Record<string, string> }>;
+      responseOverrides: Record<string, { rewrite: string; statusCode: number }>;
     };
     expect(config.globalHeaders['Content-Security-Policy']).toContain("default-src 'self'");
     expect(config.globalHeaders['Permissions-Policy']).toContain('camera=()');
@@ -20,6 +21,7 @@ describe('static delivery policy', () => {
       route: '/assets/*',
       headers: { 'Cache-Control': 'public, max-age=31536000, immutable' },
     });
+    expect(config.responseOverrides['404']).toEqual({ rewrite: '/404.html', statusCode: 404 });
   });
 
   it('does not precache Azure deployment configuration that is not publicly served', async () => {
@@ -29,7 +31,9 @@ describe('static delivery policy', () => {
 
     expect(precache).not.toContain('/staticwebapp.config.json');
     expect(precache).toContain('/index.html');
+    expect(precache).toContain('/demo/index.html');
+    expect(precache).toContain('/404.html');
     expect(precache).toContain('/offline.html');
-    expect(precache).toHaveLength(20);
+    expect(precache).toHaveLength(23);
   });
 });

@@ -4,6 +4,7 @@ import {
   calculateFeasibility,
   clampInt,
   createDefaultPlan,
+  createSamplePlan,
   participantNames,
   planToCsv,
   validatePlan,
@@ -12,15 +13,16 @@ import {
 } from './domain';
 import {
   archivePlan,
+  clearDemoData,
   clearCurrentPlan,
   deleteArchive,
   listArchives,
   loadCurrentPlan,
   saveCurrentPlan,
+  type StorageScope,
 } from './storage';
 import {
   captureReturnedLicense,
-  checkoutUrl,
   initialLicenseState,
   storeLicense,
   verifyLicense,
@@ -28,6 +30,9 @@ import {
 } from './license';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
+const BUILD_ID = '1.0.1-repair-5';
+const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
+const demoMode = normalizedPath === '/demo' || new URL(location.href).searchParams.get('demo') === '1';
 let plan: Plan | null = null;
 let activeStep = 0;
 let archives: Plan[] = [];
@@ -57,6 +62,10 @@ const numericBounds: Record<string, [number, number]> = {
 
 const steps = ['Inventory', 'Format', 'Schedule', 'Host sheet'];
 
+function storageScope(): StorageScope {
+  return demoMode ? 'demo' : 'real';
+}
+
 function escapeHtml(value: unknown): string {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -84,7 +93,7 @@ function scheduleSave(): void {
   if (indicator) indicator.textContent = 'Saving…';
   saveTimer = window.setTimeout(async () => {
     try {
-      await saveCurrentPlan(plan!);
+      await saveCurrentPlan(plan!, storageScope());
       storageFailed = false;
       const current = document.querySelector('#save-status');
       if (current) current.textContent = 'Saved on this device';
@@ -106,19 +115,22 @@ function masthead(): string {
       <img src="/icon.svg" width="40" height="40" alt="" />
       <span>Limited Night Planner</span>
     </a>
-    ${plan ? `<span class="save-state" id="save-status">${storageFailed ? 'Save needs attention' : 'Saved on this device'}</span>` : '<span class="service-label">Local night service</span>'}
+    <nav class="masthead-nav" aria-label="Primary"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a></nav>
+    ${demoMode ? '<span class="service-label">Sample route</span>' : plan ? `<span class="save-state" id="save-status">${storageFailed ? 'Save needs attention' : 'Saved on this device'}</span>` : '<span class="service-label">Local night service</span>'}
   </header>`;
 }
 
 function footer(): string {
   return `<footer class="footer">
-    <div><strong>Built for uncertain piles and real tables.</strong><br />Your plans stay in this browser. The poster artwork is original AI-generated imagery.</div>
-    <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-limited-night-planner" rel="noreferrer">Source</a></nav>
+    <div><strong>Plan a casual limited event from mixed components.</strong><br />Your plan stays in this browser. Poster artwork is original AI-generated imagery.</div>
+    <nav aria-label="Site links"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-limited-night-planner" rel="noreferrer">Source</a></nav>
+    <small>Built by Param Factory · Build ${BUILD_ID}</small>
   </footer>`;
 }
 
 function shell(content: string): string {
-  return `${isOffline ? '<div class="offline-banner" role="status">Offline service · your saved planner and timer still work.</div>' : ''}
+  return `${demoMode ? '<div class="demo-banner"><p role="status"><strong>Demo — sample data, nothing is saved</strong><small>This demo uses a separate browser space from your plans.</small></p><span class="demo-actions"><button class="button button-secondary" data-action="reset-demo">Reset demo</button><button class="button button-primary" data-action="start-real">Start for real</button></span></div>' : ''}
+    ${isOffline ? '<div class="offline-banner" role="status">Offline service · your saved planner and timer still work.</div>' : ''}
     ${storageUnavailableNotice()}
     ${masthead()}
     ${content}
@@ -130,11 +142,12 @@ function renderLanding(): void {
   app.innerHTML = shell(`<main id="main" class="landing" tabindex="-1">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">Last call for loose components</p>
-        <h1>Plan the pile.<br /><em>Run the night.</em></h1>
-        <p class="hero-lead">Count what you have, test a fair pool, and leave with a timed route for every round. No card database. No venue Wi-Fi required.</p>
-        <button class="button button-primary" data-action="start-plan">Start a night <span aria-hidden="true">→</span></button>
-        <p class="microcopy">Free planner · local-first · works offline after first visit</p>
+        <p class="eyebrow">Planner for casual limited events</p>
+        <h1>Plan a fair<br /><em>tabletop event.</em></h1>
+        <p class="hero-lead">For hosts using mixed components, build a fair schedule before friends arrive. No card database or venue Wi-Fi needed.</p>
+        <div class="hero-actions"><a class="button button-primary" href="/demo/">Try it with sample data <span aria-hidden="true">→</span></a><p>See a ready five-player host sheet.</p></div>
+        <button class="button button-secondary start-real-button" data-action="start-plan">Start a real plan</button>
+        <ul class="plain-facts"><li>Works offline after the first visit.</li><li>Plan data stays in this browser.</li><li>Planning, timers, printing, and exports stay free.</li></ul>
       </div>
       <picture class="hero-art">
         <source srcset="/assets/midnight-route-768.webp 768w, /assets/midnight-route-1536.webp 1536w" sizes="(max-width: 860px) calc(100vw - 24px), 60vw" type="image/webp" />
@@ -143,12 +156,12 @@ function renderLanding(): void {
     </section>
     <section class="promise" aria-labelledby="promise-title">
       <p class="route-number" aria-hidden="true">04</p>
-      <div><p class="eyebrow">One route, four stops</p><h2 id="promise-title">From shoebox to first round</h2></div>
+      <div><p class="eyebrow">Four steps</p><h2 id="promise-title">How the planner works</h2></div>
       <ol>
-        <li><span>01</span><strong>Count loosely</strong><small>Include only compatible groups.</small></li>
-        <li><span>02</span><strong>Set the deal</strong><small>See shortages before friends arrive.</small></li>
-        <li><span>03</span><strong>Route seats</strong><small>Generate fair, repeat-free pairings.</small></li>
-        <li><span>04</span><strong>Run on time</strong><small>Use the timer and print the host sheet.</small></li>
+        <li><span>01</span><strong>Count components</strong><small>Include only groups that can mix.</small></li>
+        <li><span>02</span><strong>Choose a pool</strong><small>See whether the count covers each player.</small></li>
+        <li><span>03</span><strong>Set seating</strong><small>Avoid repeat opponents for one round-robin cycle.</small></li>
+        <li><span>04</span><strong>Run the event</strong><small>Use the timer and print the host sheet.</small></li>
       </ol>
     </section>
   </main>`);
@@ -172,7 +185,7 @@ function renderPlanner(): void {
         : 'One page for every transition.';
   const views = [inventoryView, formatView, scheduleView, hostSheetView];
   app.innerHTML = shell(`${routeNav()}<main id="main" class="planner-shell" tabindex="-1">
-    <div class="page-heading"><div><p class="eyebrow">Stop ${String(activeStep + 1).padStart(2, '0')} · ${steps[activeStep]}</p><h1>${escapeHtml(plan.eventName || 'Untitled limited night')}</h1><p>${subtitle}</p></div><button class="button button-quiet danger-link" data-action="reset-plan">Start over</button></div>
+    <div class="page-heading"><div><p class="eyebrow">Stop ${String(activeStep + 1).padStart(2, '0')} · ${steps[activeStep]}</p><h1>${escapeHtml(plan.eventName || 'Untitled limited night')}</h1><p>${subtitle}</p></div><button class="button button-quiet danger-link" data-action="${demoMode ? 'reset-demo' : 'reset-plan'}">${demoMode ? 'Reset sample' : 'Start over'}</button></div>
     ${views[activeStep]()}
     <div class="step-actions">
       ${activeStep > 0 ? '<button class="button button-secondary" data-action="previous">← Previous stop</button>' : '<span></span>'}
@@ -320,11 +333,14 @@ function hostSheetView(): string {
 }
 
 function nightPassView(): string {
+  if (demoMode) {
+    return `<section class="night-pass"><p class="eyebrow">Sample data</p><h3>Demo stays separate</h3><p>Demo changes are never added to your real planner or archive.</p></section>`;
+  }
   if (license.unlocked) {
     return `<section class="night-pass unlocked"><p class="eyebrow">Night Pass · unlocked</p><h3>Keep a plan archive</h3><p>Save reusable snapshots on this device.</p><button class="button button-secondary" data-action="archive">Archive current plan</button>
       <ul class="archive-list">${archives.map((item) => `<li><button data-action="load-archive" data-id="${item.id}"><strong>${escapeHtml(item.eventName)}</strong><small>${escapeHtml(item.eventDate)}</small></button><button class="icon-button" data-action="delete-archive" data-id="${item.id}" aria-label="Delete archived ${escapeHtml(item.eventName)}">×</button></li>`).join('') || '<li class="archive-empty">No archived plans yet.</li>'}</ul>${license.notice ? `<p class="license-notice">${escapeHtml(license.notice)}</p>` : ''}</section>`;
   }
-  return `<section class="night-pass"><p class="eyebrow">Optional Night Pass</p><h3>Reuse every good route</h3><p>Keep an unlimited local archive of event snapshots for <strong>$9 one time</strong>. Planning, timers, printing, and exports stay free.</p><a class="button button-brass" href="${checkoutUrl}">Buy Night Pass</a><details><summary>Have a license? Restore it</summary><label class="field compact"><span>License token</span><input id="license-token" autocomplete="off" /></label><button class="button button-secondary" data-action="restore-license">Verify license</button></details>${license.notice ? `<p class="license-notice">${escapeHtml(license.notice)}</p>` : ''}<p class="legal-note">Sociobot/Dodo is the merchant of record. Refunds are handled there and revoke the license. <a href="/terms/">Terms</a> apply.</p></section>`;
+  return `<section class="night-pass"><p class="eyebrow">Night Pass</p><h3>Archive access</h3><p>New Night Pass purchases are not available yet. Planning, timers, printing, and exports stay free.</p><details><summary>Have an existing license? Restore it</summary><label class="field compact"><span>License token</span><input id="license-token" autocomplete="off" /></label><button class="button button-secondary" data-action="restore-license">Verify license</button></details>${license.notice ? `<p class="license-notice">${escapeHtml(license.notice)}</p>` : ''}<p class="legal-note">Sociobot/Dodo verifies existing licenses. <a href="/terms/">Terms</a> apply.</p></section>`;
 }
 
 function updatePlanField(name: string, rawValue: string): void {
@@ -409,7 +425,7 @@ async function handleAction(event: Event): Promise<void> {
   if (action === 'start-plan') {
     plan = createDefaultPlan();
     try {
-      await saveCurrentPlan(plan);
+      await saveCurrentPlan(plan, storageScope());
       storageFailed = false;
     } catch {
       storageFailed = true;
@@ -433,7 +449,7 @@ async function handleAction(event: Event): Promise<void> {
   } else if (action === 'reset-plan') {
     if (confirm(`Start over and remove “${plan?.eventName}” from this device? Export first if you need a copy.`)) {
       try {
-        await clearCurrentPlan();
+        await clearCurrentPlan(storageScope());
         storageFailed = false;
       } catch {
         storageFailed = true;
@@ -450,8 +466,8 @@ async function handleAction(event: Event): Promise<void> {
   else if (action === 'restore-license') await restoreLicense();
   else if (action === 'archive') {
     try {
-      await archivePlan(plan!);
-      archives = await listArchives();
+      await archivePlan(plan!, storageScope());
+      archives = await listArchives(storageScope());
       setMessage('Plan archived on this device.');
     } catch {
       storageFailed = true;
@@ -464,7 +480,7 @@ async function handleAction(event: Event): Promise<void> {
       plan = structuredClone(archived);
       plan.id = crypto.randomUUID();
       try {
-        await saveCurrentPlan(plan);
+        await saveCurrentPlan(plan, storageScope());
         setMessage('Archived plan loaded as your current plan.');
       } catch {
         storageFailed = true;
@@ -474,8 +490,8 @@ async function handleAction(event: Event): Promise<void> {
     }
   } else if (action === 'delete-archive') {
     try {
-      await deleteArchive(target.dataset.id!);
-      archives = await listArchives();
+      await deleteArchive(target.dataset.id!, storageScope());
+      archives = await listArchives(storageScope());
       setMessage('Archived plan removed.');
     } catch {
       storageFailed = true;
@@ -491,6 +507,21 @@ async function handleAction(event: Event): Promise<void> {
       setMessage('Checking for the fresh version again.');
       void serviceWorkerRegistration?.update();
     }
+  } else if (action === 'reset-demo') {
+    plan = createSamplePlan();
+    activeStep = 3;
+    try {
+      await saveCurrentPlan(plan, 'demo');
+      storageFailed = false;
+      setMessage('Demo reset to the sample night.');
+    } catch {
+      storageFailed = true;
+      setMessage('The sample night reset for this tab. Browser storage is unavailable.', 'error');
+    }
+    renderPlanner();
+  } else if (action === 'start-real') {
+    try { await clearDemoData(); } catch { /* Leaving the demo never blocks the real planner. */ }
+    location.assign('/');
   }
 }
 
@@ -548,7 +579,7 @@ async function restoreLicense(): Promise<void> {
   license = await verifyLicense(true);
   if (license.unlocked) {
     try {
-      archives = await listArchives();
+      archives = await listArchives(storageScope());
     } catch {
       storageFailed = true;
       setMessage('This browser is blocking local storage. The Night Pass archive is unavailable on this device.', 'error');
@@ -573,7 +604,7 @@ async function importFile(event: Event): Promise<void> {
     const imported = validatePlan(parsed);
     plan = imported;
     try {
-      await saveCurrentPlan(plan);
+      await saveCurrentPlan(plan, storageScope());
       setMessage('Plan imported and saved on this device.');
     } catch {
       storageFailed = true;
@@ -627,11 +658,19 @@ function registerServiceWorker(): void {
 }
 
 async function init(): Promise<void> {
-  captureReturnedLicense();
-  license = initialLicenseState();
+  if (!demoMode) captureReturnedLicense();
+  license = demoMode
+    ? { token: '', unlocked: false, checking: false, notice: '' }
+    : initialLicenseState();
+  if (demoMode) document.title = 'Demo — Limited Night Planner';
   app.innerHTML = shell('<main id="main" class="loading" tabindex="-1"><h1>Opening the night desk…</h1><p>Reading the plan saved on this device.</p></main>');
-  try { plan = await loadCurrentPlan(); } catch { storageFailed = true; }
-  if (license.unlocked) archives = await listArchives().catch(() => []);
+  try { plan = await loadCurrentPlan(storageScope()); } catch { storageFailed = true; }
+  if (demoMode) activeStep = 3;
+  if (demoMode && !plan) {
+    plan = createSamplePlan();
+    try { await saveCurrentPlan(plan, 'demo'); } catch { storageFailed = true; }
+  }
+  if (license.unlocked) archives = await listArchives(storageScope()).catch(() => []);
   if (plan?.timer.running && timerRemaining() <= 0) {
     plan.timer.running = false; plan.timer.remainingSeconds = 0; plan.timer.endsAt = null;
   }
@@ -646,9 +685,9 @@ async function init(): Promise<void> {
     isOffline = true;
     plan ? renderPlanner() : renderLanding();
   }
-  if (license.token) {
+  if (!demoMode && license.token) {
     license = await verifyLicense();
-    if (license.unlocked) archives = await listArchives().catch(() => []);
+    if (license.unlocked) archives = await listArchives(storageScope()).catch(() => []);
     if (plan && activeStep === 3) renderPlanner();
   }
 }

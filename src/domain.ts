@@ -96,6 +96,47 @@ export function createDefaultPlan(): Plan {
   };
 }
 
+/**
+ * This sample is intentionally opinionated enough to show the entire planner
+ * on first paint. It is only ever stored in the dedicated demo database.
+ */
+export function createSamplePlan(): Plan {
+  const plan = createDefaultPlan();
+  plan.eventName = 'Saturday mixed box night';
+  plan.eventDate = '2026-10-17';
+  plan.startTime = '19:00';
+  plan.players = 5;
+  plan.playerNames = ['Avery', 'Morgan', 'Sam', 'Jo', 'Kai'];
+  plan.inventory = [
+    {
+      id: uid(),
+      name: 'Compatible mixed components',
+      count: 300,
+      included: true,
+      note: 'Checked for matching backs and sleeves',
+    },
+    {
+      id: uid(),
+      name: 'Different-back reserve box',
+      count: 80,
+      included: false,
+      note: 'Keep out unless sleeved',
+    },
+  ];
+  plan.mode = 'pools';
+  plan.componentsPerPlayer = 45;
+  plan.reserve = 12;
+  plan.setupMinutes = 15;
+  plan.buildMinutes = 30;
+  plan.rounds = 5;
+  plan.roundMinutes = 45;
+  plan.breakMinutes = 5;
+  plan.compatibilityNotes = 'Keep the different-back box out. Put shared tokens beside the host sheet.';
+  plan.hostNotes = 'Ask players to return unused sleeves after the final round.';
+  plan.timer = { roundIndex: 0, remainingSeconds: 45 * 60, running: false, endsAt: null };
+  return plan;
+}
+
 export function clampInt(value: unknown, min: number, max: number): number {
   const parsed = Number.parseInt(String(value), 10);
   if (!Number.isFinite(parsed)) return min;

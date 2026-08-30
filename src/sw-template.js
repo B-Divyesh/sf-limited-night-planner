@@ -3,6 +3,14 @@ const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const PRECACHE = __PRECACHE__;
 
+function navigationFallback(pathname) {
+  if (pathname === '/' || pathname === '/index.html') return '/index.html';
+  if (pathname === '/demo' || pathname === '/demo/') return '/demo/index.html';
+  if (pathname === '/privacy' || pathname === '/privacy/') return '/privacy/index.html';
+  if (pathname === '/terms' || pathname === '/terms/') return '/terms/index.html';
+  return '/404.html';
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE)));
 });
@@ -27,10 +35,12 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).then((response) => {
-      const copy = response.clone();
-      caches.open(PAGE_CACHE).then((cache) => cache.put(request, copy));
+      if (response.ok) {
+        const copy = response.clone();
+        caches.open(PAGE_CACHE).then((cache) => cache.put(request, copy));
+      }
       return response;
-    }).catch(async () => (await caches.match(request, { ignoreVary: true })) || (await caches.match('/index.html', { ignoreVary: true })) || caches.match('/offline.html', { ignoreVary: true })));
+    }).catch(async () => (await caches.match(request, { ignoreVary: true })) || (await caches.match(navigationFallback(url.pathname), { ignoreVary: true })) || caches.match('/offline.html', { ignoreVary: true })));
     return;
   }
 

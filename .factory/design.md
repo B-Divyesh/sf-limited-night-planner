@@ -65,6 +65,11 @@ A wide editorial illustration shows an abstract tabletop as a transit map: anony
 
 **Generation:** `/opt/fleet/lib/gen-image.sh`, Azure OpenAI `factory-image`, 1536×1024, high quality; generated 2026-08-27. Original product asset under the repository MIT license. Source candidate and prompt metadata live in `assets/src/`; shipped responsive WebP derivatives live in `public/assets/`.
 
+**Social preview:** `public/assets/midnight-route-social.webp` is a 1200×630
+center crop of the shipped 1536px hero illustration, created 2026-08-30 with
+ImageMagick. It uses the same original generated artwork and no additional
+source material.
+
 ### Authored assets
 
 - PWA icons are original inline/vector constructions: midnight field, cream ticket diamond, brass route, red station dot. No stock icon set.

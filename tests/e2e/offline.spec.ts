@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('creates, saves, and reopens a plan offline at phone width', async ({ page, context }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /start a night/i }).click();
+  await page.getByRole('button', { name: /start a real plan/i }).click();
   await page.getByLabel('Event name').fill('Kitchen table test');
   await page.getByRole('button', { name: /add group/i }).click();
   await page.getByRole('spinbutton', { name: 'Count' }).fill('240');
@@ -42,7 +42,7 @@ test('generates odd-player seating, runs the timer, and exports a host sheet', a
   page.on('console', (entry) => { if (entry.type() === 'error') browserErrors.push(entry.text()); });
   page.on('pageerror', (error) => browserErrors.push(error.message));
   await page.goto('/');
-  await page.getByRole('button', { name: /start a night/i }).click();
+  await page.getByRole('button', { name: /start a real plan/i }).click();
   await page.getByLabel('Players').fill('5');
   await page.getByLabel(/player names/i).fill('Avery\nMorgan\nSam\nJo\nKai');
   await page.getByRole('button', { name: /add group/i }).click();
@@ -61,7 +61,7 @@ test('generates odd-player seating, runs the timer, and exports a host sheet', a
 
 test('immediately corrects out-of-range counts and gives actionable import recovery', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /start a night/i }).click();
+  await page.getByRole('button', { name: /start a real plan/i }).click();
 
   const players = page.getByLabel('Players');
   await players.fill('65');

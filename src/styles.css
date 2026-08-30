@@ -68,9 +68,11 @@ h3 { margin-bottom: 8px; font-size: 1.35rem; }
 .microcopy, .timer-note, .host-tools > p { color: var(--muted-night); font-size: .9rem; }
 .field-help { color: var(--muted-ink); font-size: .9rem; }
 
-.masthead { display: flex; align-items: center; justify-content: space-between; width: min(1180px, calc(100% - 40px)); min-height: 76px; margin: auto; border-bottom: 1px solid rgb(224 180 76 / 44%); }
+.masthead { display: flex; align-items: center; gap: 20px; width: min(1180px, calc(100% - 40px)); min-height: 76px; margin: auto; border-bottom: 1px solid rgb(224 180 76 / 44%); }
 .brand { display: flex; align-items: center; gap: 12px; color: var(--chalk); font-family: var(--display); font-size: 1.25rem; font-weight: 700; letter-spacing: .04em; text-decoration: none; }
 .brand img { border-radius: 8px; }
+.masthead-nav { display: flex; gap: 8px; margin-left: auto; }
+.masthead-nav a { padding: 8px 10px; color: var(--chalk); font-size: .9rem; text-underline-offset: 4px; }
 .service-label, .save-state { color: var(--muted-night); font-size: .88rem; }
 .save-state::before { display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: var(--green); content: ''; }
 
@@ -80,6 +82,11 @@ h3 { margin-bottom: 8px; font-size: 1.35rem; }
 .hero h1 { font-size: clamp(4rem, 8.2vw, 7.25rem); text-transform: uppercase; }
 .hero h1 em { color: var(--signal); font-style: normal; }
 .hero-lead { max-width: 34rem; margin-bottom: 28px; color: var(--muted-night); font-size: 1.2rem; line-height: 1.55; }
+.hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px; margin-bottom: 12px; }
+.hero-actions p { max-width: 19ch; margin: 0; color: var(--muted-night); font-size: .92rem; }
+.start-real-button { margin-bottom: 16px; }
+.plain-facts { display: grid; gap: 4px; margin: 0; padding: 0; color: var(--muted-night); font-size: .9rem; list-style: none; }
+.plain-facts li::before { margin-right: 8px; color: var(--brass); content: '•'; }
 .hero-art { display: block; position: relative; margin-left: -20px; transform: perspective(1000px) rotateY(-3deg); }
 .hero-art::after { position: absolute; inset: 0; border: 1px solid var(--brass); box-shadow: inset 0 0 0 12px rgb(16 24 39 / 30%); content: ''; pointer-events: none; }
 .hero-art img { display: block; width: 100%; height: auto; min-height: 440px; object-fit: cover; object-position: 42% center; box-shadow: var(--shadow); }
@@ -230,13 +237,20 @@ h3 { margin-bottom: 8px; font-size: 1.35rem; }
 .archive-empty { display: block !important; padding: 12px 0; color: var(--muted-night); }
 
 .step-actions { display: flex; justify-content: space-between; gap: 16px; margin-top: 32px; }
-.offline-banner { padding: 8px 20px; background: var(--brass); color: var(--ink); font-weight: 700; text-align: center; }
+.demo-banner { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 10px 20px; background: var(--brass); color: var(--ink); }
+.demo-banner p { margin: 0; font-size: .92rem; }
+.demo-banner small { display: block; font-size: .82rem; }
+.demo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.demo-actions .button { min-height: 44px; padding: 8px 12px; }
+.demo-actions .button-secondary { color: var(--ink); }
+.demo-actions .button-primary { background: var(--ink); }
+.offline-banner { padding: 8px 20px; background: #fffdf5; color: var(--ink); font-weight: 700; text-align: center; }
 .storage-banner { padding: 10px 20px; background: #fffdf5; color: var(--ink); font-weight: 700; text-align: center; }
 .toast { position: fixed; z-index: 40; right: 20px; bottom: 20px; max-width: min(420px, calc(100% - 40px)); padding: 14px 18px; border-left: 5px solid var(--brass); background: var(--paper); box-shadow: var(--shadow); color: var(--ink); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 180ms, transform 180ms; }
 .toast.is-visible:not(:empty) { opacity: 1; transform: none; pointer-events: auto; }
 .toast[data-kind='error'] { border-left-color: var(--danger); }
 .toast button { margin-left: 8px; border: 0; background: var(--ink); color: var(--chalk); cursor: pointer; }
-.footer { display: flex; justify-content: space-between; gap: 24px; width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 36px 0 calc(36px + env(safe-area-inset-bottom)); border-top: 1px solid rgb(224 180 76 / 45%); color: var(--muted-night); font-size: .9rem; }
+.footer { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 24px; align-items: start; width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 36px 0 calc(36px + env(safe-area-inset-bottom)); border-top: 1px solid rgb(224 180 76 / 45%); color: var(--muted-night); font-size: .9rem; }
 .footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
 .footer a { color: var(--chalk); text-underline-offset: 4px; }
 .loading { display: grid; min-height: 70vh; place-content: center; padding: 24px; text-align: center; }
@@ -261,6 +275,9 @@ h3 { margin-bottom: 8px; font-size: 1.35rem; }
   .masthead, .planner-shell, .footer, .route-nav ol, .promise { width: min(100% - 24px, 1180px); }
   .masthead { min-height: 64px; }
   .brand span { font-size: 1.08rem; }
+  .masthead { gap: 8px; }
+  .masthead-nav { gap: 0; }
+  .masthead-nav a { min-width: 44px; padding-inline: 7px; }
   .service-label, .save-state { max-width: 105px; text-align: right; font-size: .75rem; }
   .hero { min-height: auto; padding: 28px 12px 52px; }
   .hero h1 { font-size: clamp(3.35rem, 18vw, 5rem); }
@@ -283,13 +300,14 @@ h3 { margin-bottom: 8px; font-size: 1.35rem; }
   .timer-clock { font-size: 5rem; }
   .timer-actions .button { flex: 1 1 130px; }
   .step-actions .button { flex: 1; padding-inline: 10px; }
-  .footer { display: grid; }
+  .footer { grid-template-columns: 1fr; }
+  .demo-banner { align-items: flex-start; flex-direction: column; }
 }
 
 @media print {
   @page { margin: 12mm; }
   body { background: #fff; color: #000; font-size: 10pt; }
-  .masthead, .route-nav, .page-heading, .host-tools, .step-actions, .footer, .toast, .offline-banner, .skip-link { display: none !important; }
+  .masthead, .route-nav, .page-heading, .host-tools, .step-actions, .footer, .toast, .offline-banner, .demo-banner, .skip-link { display: none !important; }
   .planner-shell { width: 100%; padding: 0; }
   .host-page { display: block; }
   .print-sheet { padding: 0; background: #fff; color: #000; clip-path: none; }

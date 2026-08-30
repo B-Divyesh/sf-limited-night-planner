@@ -1,0 +1,79 @@
+[
+  {
+    "id": "core-planning",
+    "claim": "Checks component totals and creates pools, seating rounds, a timer, and a host sheet.",
+    "where": "landing How the planner works, README, terms",
+    "test": "npm run test:claims -- --grep @claim:core-planning",
+    "sandbox": "fresh demo browser context; inspect the component board, generated five-player seating, timer control, and host sheet"
+  },
+  {
+    "id": "demo-sandbox",
+    "claim": "Try the planner with sample data that stays separate from real plans.",
+    "where": "landing action, demo banner, privacy policy",
+    "test": "npm run test:claims -- --grep @claim:demo-sandbox",
+    "sandbox": "fresh browser context; enter /demo/, edit sample data, reset, start for real, and re-enter the demo"
+  },
+  {
+    "id": "offline-after-first-visit",
+    "claim": "Works offline after the first visit.",
+    "where": "landing facts, README",
+    "test": "npm run test:claims -- --grep @claim:offline-after-first-visit",
+    "sandbox": "dedicated fresh browser context; load /demo/, wait for service-worker control, go offline, and reload"
+  },
+  {
+    "id": "local-plan-data",
+    "claim": "Plan data stays in this browser.",
+    "where": "landing facts, footer, privacy policy, README",
+    "test": "npm run test:claims -- --grep @claim:local-plan-data",
+    "sandbox": "fresh demo browser context recording all page requests while using the sample plan"
+  },
+  {
+    "id": "no-third-party-requests",
+    "claim": "The app has no advertising, analytics, trackers, third-party fonts, or social embeds.",
+    "where": "privacy policy",
+    "test": "npm run test:claims -- --grep @claim:no-third-party-requests",
+    "sandbox": "fresh demo browser context recording every initial and planner-flow request"
+  },
+  {
+    "id": "json-export",
+    "claim": "Exports the plan as JSON.",
+    "where": "host sheet, README",
+    "test": "npm run test:claims -- --grep @claim:json-export",
+    "sandbox": "fresh demo browser context; download JSON and inspect the exported event and inventory"
+  },
+  {
+    "id": "csv-export",
+    "claim": "Exports the host sheet as CSV.",
+    "where": "host sheet, README",
+    "test": "npm run test:claims -- --grep @claim:csv-export",
+    "sandbox": "fresh demo browser context; download CSV and inspect its inventory and rounds headers"
+  },
+  {
+    "id": "first-cycle-pairings",
+    "claim": "Avoids repeat opponents for one round-robin cycle.",
+    "where": "landing How the planner works, README",
+    "test": "npm run test:claims -- --grep @claim:first-cycle-pairings",
+    "sandbox": "fresh demo browser context; inspect all five sample rounds for a five-player group"
+  },
+  {
+    "id": "timer-persistence",
+    "claim": "The round timer survives a refresh.",
+    "where": "README",
+    "test": "npm run test:claims -- --grep @claim:timer-persistence",
+    "sandbox": "fresh demo browser context; start the timer, wait for it to tick, reload, and inspect the timer"
+  },
+  {
+    "id": "free-core-tools",
+    "claim": "Planning, timers, printing, and exports stay free.",
+    "where": "landing facts, Night Pass panel, terms",
+    "test": "npm run test:claims -- --grep @claim:free-core-tools",
+    "sandbox": "fresh demo browser context; confirm the timer, print action, and both export actions are available without a license"
+  },
+  {
+    "id": "night-pass-sales-unavailable",
+    "claim": "New Night Pass purchases are not available yet; existing passes can still be restored.",
+    "where": "Night Pass panel, terms, README",
+    "test": "npm run test:claims -- --grep @claim:night-pass-sales-unavailable",
+    "sandbox": "fresh real-plan browser context; confirm no checkout link is advertised and the existing-license restore control is present"
+  }
+]
