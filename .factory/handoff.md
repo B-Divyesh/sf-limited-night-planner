@@ -2,7 +2,7 @@
 
 ## Release result
 
-**Status: ready for static deployment.**
+**Status: deployed and verified.**
 
 - Work order: `limited-night-planner-repair-6`
 - Verifier report repaired: `093eda1a13f5f51a5880dd7492e3d1a11fcab236`
@@ -96,6 +96,27 @@ Deploy the generated `dist/` with the configured static deployment command:
 ```sh
 /opt/fleet/lib/deploy-static.sh limited-night-planner dist
 ```
+
+## Deployment evidence
+
+Deployed on 2026-08-30 UTC through the configured Azure Static Web Apps
+workflow.
+
+- Deployment ID: `0268dc13-2af9-421f-bb31-4c69c767e9a6`
+- Default host: `https://proud-forest-021ac930f.7.azurestaticapps.net`
+- Custom domain: `https://limited-night-planner.sociobot.in/` returned HTTPS
+  200 after the upload.
+- Live `/`, `/demo/`, `/privacy/`, and `/terms/` passed `verify-url.sh` with
+  zero console errors and the same semantic checks recorded locally. The live
+  sample desktop loads were 700 ms, 888 ms, 707 ms, and 790 ms.
+- The live root HTML and `assets/app-BSwxXf0S.js` both matched their `dist/`
+  counterparts byte-for-byte. An unknown live route returns HTTP 404 with the
+  designed Page not found title.
+- The live response carries the configured CSP, HSTS, `nosniff`, strict-origin
+  referrer policy, and Permissions-Policy. A fresh 390×844 Chromium smoke
+  focused the skip link first, clamped Count to 1,000,000, found no horizontal
+  overflow or console errors, observed a controlling service worker, and made
+  requests only to `https://limited-night-planner.sociobot.in`.
 
 ## Known gaps
 
