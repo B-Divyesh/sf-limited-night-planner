@@ -52,7 +52,7 @@ button, input, textarea { font: inherit; }
 button, a, input, textarea, summary { -webkit-tap-highlight-color: transparent; }
 button, .button, input, textarea { min-height: 44px; }
 button { color: inherit; }
-a { color: inherit; }
+a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; color: inherit; }
 img { max-width: 100%; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { font-family: var(--display); line-height: .98; letter-spacing: .015em; }
@@ -231,6 +231,7 @@ h3 { margin-bottom: 8px; font-size: 1.35rem; }
 
 .step-actions { display: flex; justify-content: space-between; gap: 16px; margin-top: 32px; }
 .offline-banner { padding: 8px 20px; background: var(--brass); color: var(--ink); font-weight: 700; text-align: center; }
+.storage-banner { padding: 10px 20px; background: #fffdf5; color: var(--ink); font-weight: 700; text-align: center; }
 .toast { position: fixed; z-index: 40; right: 20px; bottom: 20px; max-width: min(420px, calc(100% - 40px)); padding: 14px 18px; border-left: 5px solid var(--brass); background: var(--paper); box-shadow: var(--shadow); color: var(--ink); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 180ms, transform 180ms; }
 .toast.is-visible:not(:empty) { opacity: 1; transform: none; pointer-events: auto; }
 .toast[data-kind='error'] { border-left-color: var(--danger); }

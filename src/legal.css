@@ -4,7 +4,7 @@
 :root { font-family: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; color: #182132; background: #101827; font-size: 17px; line-height: 1.6; }
 * { box-sizing: border-box; }
 body { margin: 0; }
-a { color: inherit; text-underline-offset: 4px; }
+a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; color: inherit; text-underline-offset: 4px; }
 a:focus-visible { outline: 3px solid #e0b44c; outline-offset: 3px; }
 header { display: flex; align-items: center; justify-content: space-between; width: min(800px, calc(100% - 32px)); min-height: 76px; margin: auto; color: #fff8e8; border-bottom: 1px solid #e0b44c; }
 header a { font-weight: 700; }

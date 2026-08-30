@@ -28,3 +28,11 @@ test('primary planner path is keyboard operable', async ({ page }) => {
   await page.keyboard.press('Space');
   await expect(page.getByRole('heading', { level: 1, name: /friday night limited/i })).toBeVisible();
 });
+
+test('privacy and terms pages have no serious accessibility violations', async ({ page }) => {
+  for (const path of ['/privacy/', '/terms/']) {
+    await page.goto(path);
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+  }
+});

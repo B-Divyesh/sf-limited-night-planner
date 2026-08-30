@@ -37,6 +37,15 @@ npm run test:e2e
 npm run build
 ```
 
+The billing service's live abuse-protection contract has a separate, intentional
+network check. It sends 300 distinct invalid verification tokens and expects
+HTTP 429 responses with `Retry-After`; run it only when checking the deployed
+Sociobot billing endpoint:
+
+```sh
+npm run test:license-rate-limit
+```
+
 The exact production command is `npm run build`. It creates the static deploy artifact in `dist/`, with `dist/index.html` at its root and a generated, versioned service worker precache.
 
 To inspect the production build:

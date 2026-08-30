@@ -61,7 +61,13 @@ describe('round routing', () => {
 
 describe('portable plans', () => {
   it('rejects unsupported imports', () => {
-    expect(() => validatePlan({ version: 99, inventory: [] })).toThrow(/not supported/i);
+    expect(() => validatePlan({ version: 99, inventory: [] })).toThrow(/not valid planner json/i);
+  });
+
+  it('rejects schema-invalid inventory entries with actionable recovery text', () => {
+    expect(() => validatePlan({ version: 1, eventName: 'Shape check', inventory: [null] })).toThrow(
+      'This file is not valid planner JSON. Choose a JSON backup exported by Limited Night Planner.',
+    );
   });
 
   it('escapes CSV fields', () => {

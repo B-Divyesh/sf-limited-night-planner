@@ -178,7 +178,10 @@ export function validatePlan(value: unknown): Plan {
   if (!value || typeof value !== 'object') throw new Error('That file does not contain a plan.');
   const input = value as Partial<Plan>;
   if (input.version !== 1 || typeof input.eventName !== 'string' || !Array.isArray(input.inventory)) {
-    throw new Error('This plan format is not supported. Export a fresh JSON plan and try again.');
+    throw new Error('This file is not valid planner JSON. Choose a JSON backup exported by Limited Night Planner.');
+  }
+  if (input.inventory.some((item) => !item || typeof item !== 'object' || Array.isArray(item))) {
+    throw new Error('This file is not valid planner JSON. Choose a JSON backup exported by Limited Night Planner.');
   }
   const base = createDefaultPlan();
   return {

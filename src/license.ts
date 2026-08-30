@@ -27,12 +27,22 @@ function readVerdict(): Verdict | null {
   }
 }
 
+/**
+ * Paid access can survive an offline visit only after this exact token has
+ * received a successful answer from the billing service.  `checkedAt: 0` is
+ * deliberately reserved for a just-returned or pasted token that has not yet
+ * been verified.
+ */
+function hasVerifiedPass(verdict: Verdict | null): boolean {
+  return verdict?.valid === true && verdict.checkedAt > 0 && verdict.reason !== 'pending';
+}
+
 export function captureReturnedLicense(): void {
   const url = new URL(location.href);
   const token = url.searchParams.get('license');
   if (!token) return;
   localStorage.setItem(LICENSE_KEY, token);
-  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: true, checkedAt: 0, reason: 'pending' }));
+  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: false, checkedAt: 0, reason: 'pending' }));
   url.searchParams.delete('license');
   history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
 }
@@ -42,9 +52,11 @@ export function initialLicenseState(): LicenseState {
   const verdict = readVerdict();
   return {
     token,
-    unlocked: Boolean(token && verdict?.valid),
+    unlocked: Boolean(token && hasVerifiedPass(verdict)),
     checking: false,
-    notice: verdict && !verdict.valid ? 'License no longer active.' : '',
+    notice: verdict?.reason === 'pending'
+      ? 'Verify this Night Pass once while online to unlock the archive.'
+      : verdict && !verdict.valid ? 'License no longer active.' : '',
   };
 }
 
@@ -58,7 +70,14 @@ export async function verifyLicense(force = false): Promise<LicenseState> {
   if (!token) return { token: '', unlocked: false, checking: false, notice: '' };
   const cached = readVerdict();
   if (!force && cached && Date.now() - cached.checkedAt < DAY) {
-    return { token, unlocked: cached.valid, checking: false, notice: cached.valid ? '' : 'License no longer active.' };
+    return {
+      token,
+      unlocked: hasVerifiedPass(cached),
+      checking: false,
+      notice: hasVerifiedPass(cached) ? '' : cached.reason === 'pending'
+        ? 'Verify this Night Pass once while online to unlock the archive.'
+        : 'License no longer active.',
+    };
   }
 
   try {
@@ -78,11 +97,11 @@ export async function verifyLicense(force = false): Promise<LicenseState> {
   } catch {
     return {
       token,
-      unlocked: cached?.valid === true,
+      unlocked: hasVerifiedPass(cached),
       checking: false,
-      notice: cached?.valid
+      notice: hasVerifiedPass(cached)
         ? 'Offline: using your last verified Night Pass.'
-        : 'Could not verify while offline. Your free planner still works.',
+        : 'Could not verify this Night Pass while offline. Your free planner still works.',
     };
   }
 }

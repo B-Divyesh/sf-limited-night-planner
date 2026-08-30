@@ -95,6 +95,11 @@ function scheduleSave(): void {
   }, 180);
 }
 
+function storageUnavailableNotice(): string {
+  if (!storageFailed) return '';
+  return `<div class="storage-banner" role="status">This browser is blocking local storage. You can still plan, print, and export a JSON backup, but this plan will not survive a refresh.</div>`;
+}
+
 function masthead(): string {
   return `<header class="masthead">
     <a class="brand" href="/" aria-label="Limited Night Planner home">
@@ -114,6 +119,7 @@ function footer(): string {
 
 function shell(content: string): string {
   return `${isOffline ? '<div class="offline-banner" role="status">Offline service · your saved planner and timer still work.</div>' : ''}
+    ${storageUnavailableNotice()}
     ${masthead()}
     ${content}
     <div id="announcer" class="toast ${message ? 'is-visible' : ''}" data-kind="${messageKind}" role="status" aria-live="polite">${escapeHtml(message)}</div>
@@ -244,7 +250,7 @@ function formatView(): string {
       </section>
       <section aria-labelledby="timing-title"><div class="section-heading"><div><p class="eyebrow">Working timetable</p><h2 id="timing-title">Set the pace</h2></div></div>
         <div class="field-grid three">${field('Setup minutes', 'setupMinutes', plan!.setupMinutes, 'number', 'min="0" max="240"')}${field('Build minutes', 'buildMinutes', plan!.buildMinutes, 'number', 'min="0" max="240"')}${field('Rounds', 'rounds', plan!.rounds, 'number', 'min="1" max="20"')}${field('Round minutes', 'roundMinutes', plan!.roundMinutes, 'number', 'min="1" max="240"')}${field('Changeover minutes', 'breakMinutes', plan!.breakMinutes, 'number', 'min="0" max="60"')}</div>
-        ${plan!.rounds > uniqueRounds ? `<p class="field-help">With ${plan!.players} players, opponents begin repeating after round ${uniqueRounds}.</p>` : ''}
+        <p id="repeat-opponent-guidance" class="field-help" role="status" aria-live="polite">${plan!.rounds > uniqueRounds ? `With ${plan!.players} players, opponents begin repeating after round ${uniqueRounds}.` : ''}</p>
       </section>
       <section aria-labelledby="notes-title"><div class="section-heading"><div><p class="eyebrow">Exception desk</p><h2 id="notes-title">Compatibility and house notes</h2></div></div>
         <label class="field"><span>What must the host check?</span><textarea data-field="compatibilityNotes" rows="6" placeholder="Sleeve groups with different backs. Keep the six marked pieces together. Explain the replacement-token rule before building.">${escapeHtml(plan!.compatibilityNotes)}</textarea></label>
@@ -335,6 +341,15 @@ function updatePlanField(name: string, rawValue: string): void {
   scheduleSave();
 }
 
+function refreshRepeatOpponentGuidance(): void {
+  const guidance = document.querySelector<HTMLElement>('#repeat-opponent-guidance');
+  if (!guidance || !plan) return;
+  const uniqueRounds = plan.players % 2 === 0 ? plan.players - 1 : plan.players;
+  guidance.textContent = plan.rounds > uniqueRounds
+    ? `With ${plan.players} players, opponents begin repeating after round ${uniqueRounds}.`
+    : '';
+}
+
 function reflectNumericValidation(input: HTMLInputElement, key: string, rawValue: string): void {
   const [min, max] = numericBounds[key];
   const value = clampInt(rawValue, min, max);
@@ -358,6 +373,7 @@ function bindEvents(): void {
       else if (element instanceof HTMLInputElement && element.type === 'number') {
         reflectNumericValidation(element, element.dataset.field!, element.value);
         refreshBoard();
+        refreshRepeatOpponentGuidance();
       }
     });
   });
@@ -392,7 +408,13 @@ async function handleAction(event: Event): Promise<void> {
   const action = target.dataset.action;
   if (action === 'start-plan') {
     plan = createDefaultPlan();
-    await saveCurrentPlan(plan);
+    try {
+      await saveCurrentPlan(plan);
+      storageFailed = false;
+    } catch {
+      storageFailed = true;
+      setMessage('This browser is blocking local storage. You can still plan and export a JSON backup, but this plan will not survive a refresh.', 'error');
+    }
     renderPlanner();
   } else if (action === 'step') {
     activeStep = Number(target.dataset.step);
@@ -410,7 +432,14 @@ async function handleAction(event: Event): Promise<void> {
     plan?.inventory.splice(Number(target.dataset.index), 1); scheduleSave(); renderPlanner();
   } else if (action === 'reset-plan') {
     if (confirm(`Start over and remove “${plan?.eventName}” from this device? Export first if you need a copy.`)) {
-      await clearCurrentPlan(); plan = null; activeStep = 0; renderLanding();
+      try {
+        await clearCurrentPlan();
+        storageFailed = false;
+      } catch {
+        storageFailed = true;
+        setMessage('This browser is blocking local storage. The plan was cleared only in this tab.', 'error');
+      }
+      plan = null; activeStep = 0; renderLanding();
     }
   } else if (action === 'toggle-timer') toggleTimer();
   else if (action === 'reset-timer') resetTimer();
@@ -420,12 +449,39 @@ async function handleAction(event: Event): Promise<void> {
   else if (action === 'export-csv') download(`${fileSlug()}-host-sheet.csv`, planToCsv(plan!), 'text/csv;charset=utf-8');
   else if (action === 'restore-license') await restoreLicense();
   else if (action === 'archive') {
-    await archivePlan(plan!); archives = await listArchives(); setMessage('Plan archived on this device.'); renderPlanner();
+    try {
+      await archivePlan(plan!);
+      archives = await listArchives();
+      setMessage('Plan archived on this device.');
+    } catch {
+      storageFailed = true;
+      setMessage('This browser is blocking local storage. Archives are unavailable, so export a JSON backup instead.', 'error');
+    }
+    renderPlanner();
   } else if (action === 'load-archive') {
     const archived = archives.find((item) => item.id === target.dataset.id);
-    if (archived) { plan = structuredClone(archived); plan.id = crypto.randomUUID(); await saveCurrentPlan(plan); setMessage('Archived plan loaded as your current plan.'); renderPlanner(); }
+    if (archived) {
+      plan = structuredClone(archived);
+      plan.id = crypto.randomUUID();
+      try {
+        await saveCurrentPlan(plan);
+        setMessage('Archived plan loaded as your current plan.');
+      } catch {
+        storageFailed = true;
+        setMessage('This browser is blocking local storage. The archive is open for this tab only, so export a JSON backup before refreshing.', 'error');
+      }
+      renderPlanner();
+    }
   } else if (action === 'delete-archive') {
-    await deleteArchive(target.dataset.id!); archives = await listArchives(); setMessage('Archived plan removed.'); renderPlanner();
+    try {
+      await deleteArchive(target.dataset.id!);
+      archives = await listArchives();
+      setMessage('Archived plan removed.');
+    } catch {
+      storageFailed = true;
+      setMessage('This browser is blocking local storage. That archive could not be removed.', 'error');
+    }
+    renderPlanner();
   } else if (action === 'apply-update') {
     updateRequested = true;
     const worker = serviceWorkerRegistration?.waiting ?? navigator.serviceWorker.controller;
@@ -490,7 +546,14 @@ async function restoreLicense(): Promise<void> {
   storeLicense(token);
   setMessage('Checking license…');
   license = await verifyLicense(true);
-  if (license.unlocked) archives = await listArchives();
+  if (license.unlocked) {
+    try {
+      archives = await listArchives();
+    } catch {
+      storageFailed = true;
+      setMessage('This browser is blocking local storage. The Night Pass archive is unavailable on this device.', 'error');
+    }
+  }
   renderPlanner();
 }
 
@@ -508,7 +571,15 @@ async function importFile(event: Event): Promise<void> {
       throw new Error('This file is not valid planner JSON. Choose a JSON backup exported by Limited Night Planner.');
     }
     const imported = validatePlan(parsed);
-    plan = imported; await saveCurrentPlan(plan); setMessage('Plan imported and saved on this device.'); renderPlanner();
+    plan = imported;
+    try {
+      await saveCurrentPlan(plan);
+      setMessage('Plan imported and saved on this device.');
+    } catch {
+      storageFailed = true;
+      setMessage('This browser is blocking local storage. The imported plan is open for this tab only, so export a JSON backup before refreshing.', 'error');
+    }
+    renderPlanner();
   } catch (error) {
     setMessage(error instanceof Error ? error.message : 'Could not import that plan.', 'error');
     input.value = '';
