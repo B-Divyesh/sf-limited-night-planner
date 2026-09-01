@@ -1,0 +1,68 @@
+[
+  {
+    "name": "root",
+    "path": "/",
+    "status": 200,
+    "title": "Limited Night Planner — plan a tabletop event",
+    "h1": 1,
+    "main": 1,
+    "skip": 1,
+    "header": 1,
+    "footer": 1,
+    "seriousOrCritical": [],
+    "errors": []
+  },
+  {
+    "name": "demo",
+    "path": "/?demo=1",
+    "status": 200,
+    "title": "Demo — Limited Night Planner",
+    "h1": 1,
+    "main": 1,
+    "skip": 1,
+    "header": 1,
+    "footer": 1,
+    "seriousOrCritical": [],
+    "errors": [],
+    "demoBanner": 1
+  },
+  {
+    "name": "privacy",
+    "path": "/privacy/",
+    "status": 200,
+    "title": "Privacy — Limited Night Planner",
+    "h1": 1,
+    "main": 1,
+    "skip": 1,
+    "header": 1,
+    "footer": 1,
+    "seriousOrCritical": [],
+    "errors": []
+  },
+  {
+    "name": "terms",
+    "path": "/terms/",
+    "status": 200,
+    "title": "Terms — Limited Night Planner",
+    "h1": 1,
+    "main": 1,
+    "skip": 1,
+    "header": 1,
+    "footer": 1,
+    "seriousOrCritical": [],
+    "errors": []
+  },
+  {
+    "name": "not-found",
+    "path": "/no-such-page",
+    "status": 404,
+    "title": "Page not found — Limited Night Planner",
+    "h1": 1,
+    "main": 1,
+    "skip": 1,
+    "header": 1,
+    "footer": 1,
+    "seriousOrCritical": [],
+    "errors": []
+  }
+]
