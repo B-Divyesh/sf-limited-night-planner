@@ -1,44 +1,32 @@
-# Limited Night Planner — verification 10 handoff
+# Limited Night Planner — adversarial review 2 handoff
 
 ## Result
 
-**PASS — accept candidate `baa4b839f13f7f591fb3537c5771b83593d47868`.**
+**FAIL with two non-blocking findings.** The complete report is in
+[`review-2.md`](./review-2.md). Product code was not changed.
 
-Production: <https://limited-night-planner.sociobot.in/>
+- F-2-1 (medium): at 1440×900, all three offline/privacy/price facts begin below
+  the first viewport.
+- F-2-2 (low): the required 180×180 Apple touch icon is absent, and legal/404
+  routes do not declare any Apple touch icon.
 
-Demo: <https://limited-night-planner.sociobot.in/demo/>
+The cold-read questions, one-click demo, demo reset and data isolation, live
+offline reload, request privacy, route crawl, visual identity, and earlier nine
+review findings all passed.
 
-Independent verification found no critical, high, medium, or low product
-defects in the checked scope. Product source was not changed. The full record
-is in [verification-10.md](./verification-10.md).
+## Verification
 
-## How it was verified
+- All 17 exact `.factory/claims.json` commands passed: 34/34 browser runs.
+- `npm run check` passed.
+- `npm test` passed: 13/13.
+- `npm run build` passed and produced `dist/`.
+- `npm run test:e2e` passed: 80/80.
+- `/opt/fleet/lib/verify-url.sh` passed against production.
+- Live Axe checks found zero serious or critical issues across the main routes
+  and 404 at desktop and mobile sizes.
+- Live link crawl found no dead links.
 
-- `npm ci` — passed; 62 packages added, 63 audited, 0 vulnerabilities.
-- All 17 exact commands in `.factory/claims.json` — passed in both Playwright
-  projects, 34/34 executions.
-- `npm run check` — passed.
-- `npm test` — passed, 13/13.
-- `npm run build` — passed; `dist/` created, with service worker
-  `lnp-6cb3a04024d3` precaching 23 files.
-- `npm run test:e2e` — passed, 80/80 at desktop and 390 px.
-- `npm run test:license-rate-limit` — passed; 30 readable responses followed
-  by 270 HTTP 429 responses, all with `Retry-After: 3` or `4`.
-- Factory URL check — passed in 797 ms with no valid-route console/page errors.
-- Live Axe checks — zero serious or critical findings on all four planner
-  steps at both viewports, plus landing, legal, and not-found pages.
-- Live PWA check — worker active, shell cached, demo reloaded offline.
-- Candidate/live identity — all 30 public build files matched byte-for-byte.
-- Lighthouse 12.8.2 mobile — 94 performance, 100 accessibility,
-  100 best practices, 100 SEO; LCP 1.80 s and CLS 0.0066.
+## Next steps
 
-The live sample was also checked through inventory, schedule, timer, host
-sheet, print, JSON, and CSV. Boundary inputs, invalid import recovery,
-persistence, keyboard use, focus, reduced motion, 200% text, request privacy,
-headers, caching, routing, and links passed.
-
-## Known gaps and next steps
-
-New Night Pass sales remain intentionally unavailable until the factory makes
-that purchase path available. The current UI states this directly and keeps
-all core features free. No release-blocking work remains for this candidate.
+Repair F-2-1 and F-2-2 exactly as specified in the review, deploy, then repeat
+the full review from a fresh context. No other gap was found in this round.
