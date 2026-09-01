@@ -8,6 +8,29 @@ async function openDemo(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { level: 1, name: 'Saturday mixed box night' })).toBeVisible();
 }
 
+async function mockValidNightPass(page: Page): Promise<void> {
+  const validLicenseResponse = await readFile(new URL('../fixtures/license-valid.json', import.meta.url), 'utf8');
+  await page.context().route('https://api.sociobot.in/api/v1/products/limited-night-planner/verify**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    headers: { 'Access-Control-Allow-Origin': 'http://127.0.0.1:4173' },
+    body: validLicenseResponse,
+  }));
+}
+
+async function openUnlockedHostSheet(page: Page, eventName: string): Promise<void> {
+  await mockValidNightPass(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Start a real plan' }).click();
+  await page.getByLabel('Event name').fill(eventName);
+  await page.waitForTimeout(250);
+  await page.getByRole('button', { name: '04 Host sheet' }).click();
+  await page.getByText('Have an existing license? Restore it').click();
+  await page.getByLabel('License token').fill('recorded-existing-pass');
+  await page.getByRole('button', { name: 'Verify license' }).click();
+  await expect(page.getByRole('button', { name: 'Archive current plan' })).toBeVisible();
+}
+
 test('@claim:demo-sandbox sample data is reset and never becomes a real plan', async ({ page }) => {
   await openDemo(page);
   await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
@@ -60,6 +83,13 @@ test('@claim:no-third-party-requests demo use loads no external code or tracking
   expect([...origins]).toEqual(['http://127.0.0.1:4173']);
 });
 
+test('@claim:no-analytics-cookies sample use leaves the browser cookie jar empty', async ({ page, context }) => {
+  await openDemo(page);
+  await page.getByRole('button', { name: '03 Schedule' }).click();
+  await page.getByRole('button', { name: '04 Host sheet' }).click();
+  expect(await context.cookies()).toEqual([]);
+});
+
 test('@claim:json-export downloads the complete sample plan', async ({ page }) => {
   await openDemo(page);
   const downloadPromise = page.waitForEvent('download');
@@ -106,6 +136,22 @@ test('@claim:timer-persistence keeps a running timer after refresh', async ({ pa
   await expect(page.getByRole('timer')).not.toHaveText('45:00');
 });
 
+test('@claim:timer-background keeps counting while another tab is active', async ({ page }) => {
+  await openDemo(page);
+  await page.getByRole('button', { name: '03 Schedule' }).click();
+  await page.getByRole('button', { name: 'Start timer' }).click();
+
+  const session = await page.context().newCDPSession(page);
+  try {
+    await session.send('Page.setWebLifecycleState', { state: 'frozen' });
+    await page.waitForTimeout(1_300);
+    await session.send('Page.setWebLifecycleState', { state: 'active' });
+    await expect(page.getByRole('timer')).not.toHaveText('45:00');
+  } finally {
+    await session.detach();
+  }
+});
+
 test('@claim:free-core-tools are available without a license', async ({ page }) => {
   await openDemo(page);
   await page.getByRole('button', { name: /schedule/i }).click();
@@ -142,6 +188,43 @@ test('@claim:night-pass-sales-unavailable does not advertise a broken checkout',
   expect(verificationRequest).toBe('https://api.sociobot.in/api/v1/products/limited-night-planner/verify?license=recorded-existing-pass');
   await page.getByRole('button', { name: 'Archive current plan' }).click();
   await expect(page.getByText('Plan archived on this device.')).toBeVisible();
+});
+
+test('@claim:plan-deletion removes a current plan and an individual archive', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Start a real plan' }).click();
+  await page.getByLabel('Event name').fill('Plan to remove');
+  await page.waitForTimeout(250);
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Start over' }).click();
+  await expect(page.getByRole('button', { name: 'Start a real plan' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Start a real plan' })).toBeVisible();
+
+  await openUnlockedHostSheet(page, 'Archive to remove');
+  await page.getByRole('button', { name: 'Archive current plan' }).click();
+  await expect(page.getByText('Plan archived on this device.')).toBeVisible();
+  await page.getByRole('button', { name: 'Delete archived Archive to remove' }).click();
+  await expect(page.getByText('Archived plan removed.')).toBeVisible();
+  await expect(page.getByText('No archived plans yet.')).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: '04 Host sheet' }).click();
+  await expect(page.getByText('No archived plans yet.')).toBeVisible();
+});
+
+test('@claim:reusable-archives saves a snapshot that can be reopened after reload', async ({ page }) => {
+  await openUnlockedHostSheet(page, 'Reusable archived night');
+  await page.getByRole('button', { name: 'Archive current plan' }).click();
+  await expect(page.getByText('Plan archived on this device.')).toBeVisible();
+  await page.getByRole('button', { name: '01 Inventory' }).click();
+  await page.getByLabel('Event name').fill('Changed working copy');
+  await page.waitForTimeout(250);
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1, name: 'Changed working copy' })).toBeVisible();
+  await page.getByRole('button', { name: '04 Host sheet' }).click();
+  await page.locator('[data-action="load-archive"]').filter({ hasText: 'Reusable archived night' }).click();
+  await expect(page.getByText('Archived plan loaded as your current plan.')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Reusable archived night' })).toBeVisible();
 });
 
 test('@claim:round-cycle-warning warns before a five-player schedule starts repeating opponents', async ({ page }) => {

@@ -51,5 +51,5 @@ test('unknown routes are real 404s and standard routes expose discovery metadata
   }
 
   await page.goto('/');
-  await expect(page.getByText(/Built by Param Factory · Build 1\.0\.2-repair-6/)).toBeVisible();
+  await expect(page.getByText(/Built by Param Factory · Build 1\.0\.3-repair-7/)).toBeVisible();
 });

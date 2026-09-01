@@ -35,6 +35,13 @@
     "sandbox": "fresh demo browser context recording every initial and planner-flow request"
   },
   {
+    "id": "no-analytics-cookies",
+    "claim": "The app itself does not set analytics cookies.",
+    "where": "privacy policy",
+    "test": "npm run test:claims -- --grep @claim:no-analytics-cookies",
+    "sandbox": "fresh demo browser context; use the sample plan and assert that the browser cookie jar is empty"
+  },
+  {
     "id": "json-export",
     "claim": "Exports the plan as JSON.",
     "where": "host sheet, README",
@@ -63,6 +70,13 @@
     "sandbox": "fresh demo browser context; start the timer, wait for it to tick, reload, and inspect the timer"
   },
   {
+    "id": "timer-background",
+    "claim": "The timer continues if you switch tabs.",
+    "where": "Schedule timer note",
+    "test": "npm run test:claims -- --grep @claim:timer-background",
+    "sandbox": "fresh demo browser context; start the timer, simulate Chromium's frozen background-tab lifecycle for a tick, resume it, and inspect the timer"
+  },
+  {
     "id": "free-core-tools",
     "claim": "Planning, timers, printing, and exports stay free.",
     "where": "landing facts, Night Pass panel, terms",
@@ -75,6 +89,20 @@
     "where": "Night Pass panel, terms, README",
     "test": "npm run test:claims -- --grep @claim:night-pass-sales-unavailable",
     "sandbox": "fresh real-plan browser context; use a recorded valid Sociobot response fixture, submit an existing pass, and assert archive access unlocks without advertising a checkout"
+  },
+  {
+    "id": "plan-deletion",
+    "claim": "Start over removes the current plan; archived plans can be removed individually.",
+    "where": "privacy policy, planner controls",
+    "test": "npm run test:claims -- --grep @claim:plan-deletion",
+    "sandbox": "fresh real-plan browser context; confirm Start over, reload, archive a plan with a recorded valid pass fixture, delete that archive, and reload"
+  },
+  {
+    "id": "reusable-archives",
+    "claim": "Save reusable snapshots on this device.",
+    "where": "unlocked Night Pass panel",
+    "test": "npm run test:claims -- --grep @claim:reusable-archives",
+    "sandbox": "fresh real-plan browser context; use a recorded valid pass fixture, archive a named plan, change the current copy, reload, and reopen the saved snapshot"
   },
   {
     "id": "round-cycle-warning",

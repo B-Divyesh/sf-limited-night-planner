@@ -30,7 +30,7 @@ import {
 } from './license';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD_ID = '1.0.2-repair-6';
+const BUILD_ID = '1.0.3-repair-7';
 const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
 const demoMode = normalizedPath === '/demo' || new URL(location.href).searchParams.get('demo') === '1';
 let plan: Plan | null = null;
@@ -82,7 +82,18 @@ function setMessage(text: string, kind: 'info' | 'error' = 'info'): void {
   if (region) {
     region.textContent = text;
     region.dataset.kind = kind;
+    region.classList.toggle('is-visible', Boolean(text));
   }
+}
+
+function announcePlannerStep(): void {
+  const heading = app.querySelector<HTMLHeadingElement>('#planner-step-title');
+  heading?.focus({ preventScroll: true });
+  setMessage(`Stop ${String(activeStep + 1).padStart(2, '0')}: ${steps[activeStep]}.`);
+}
+
+function scrollToPlannerStart(): void {
+  window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 }
 
 function scheduleSave(): void {
@@ -185,7 +196,7 @@ function renderPlanner(): void {
         : 'One page for every transition.';
   const views = [inventoryView, formatView, scheduleView, hostSheetView];
   app.innerHTML = shell(`${routeNav()}<main id="main" class="planner-shell" tabindex="-1">
-    <div class="page-heading"><div><p class="eyebrow">Stop ${String(activeStep + 1).padStart(2, '0')} · ${steps[activeStep]}</p><h1>${escapeHtml(plan.eventName || 'Untitled limited night')}</h1><p>${subtitle}</p></div><button class="button button-quiet danger-link" data-action="${demoMode ? 'reset-demo' : 'reset-plan'}">${demoMode ? 'Reset sample' : 'Start over'}</button></div>
+    <div class="page-heading"><div><p class="eyebrow">Stop ${String(activeStep + 1).padStart(2, '0')} · ${steps[activeStep]}</p><h1 id="planner-step-title" tabindex="-1">${escapeHtml(plan.eventName || 'Untitled limited night')}</h1><p>${subtitle}</p></div><button class="button button-quiet danger-link" data-action="${demoMode ? 'reset-demo' : 'reset-plan'}">${demoMode ? 'Reset sample' : 'Start over'}</button></div>
     ${views[activeStep]()}
     <div class="step-actions">
       ${activeStep > 0 ? '<button class="button button-secondary" data-action="previous">← Previous stop</button>' : '<span></span>'}
@@ -432,14 +443,17 @@ async function handleAction(event: Event): Promise<void> {
       setMessage('This browser is blocking local storage. You can still plan and export a JSON backup, but this plan will not survive a refresh.', 'error');
     }
     renderPlanner();
+    announcePlannerStep();
   } else if (action === 'step') {
     activeStep = Number(target.dataset.step);
     renderPlanner();
-    document.querySelector('h1')?.focus?.();
+    scrollToPlannerStart();
+    announcePlannerStep();
   } else if (action === 'next' || action === 'previous') {
     activeStep = Math.max(0, Math.min(3, activeStep + (action === 'next' ? 1 : -1)));
     renderPlanner();
-    window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    scrollToPlannerStart();
+    announcePlannerStep();
   } else if (action === 'add-item') {
     plan?.inventory.push({ id: crypto.randomUUID(), name: `Group ${(plan?.inventory.length ?? 0) + 1}`, count: 0, included: true, note: '' });
     scheduleSave(); renderPlanner();
