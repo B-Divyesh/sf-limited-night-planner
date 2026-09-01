@@ -14,7 +14,7 @@ labels, not prose sentences.
 | Header | Limited Night Planner | 3 | Pass |
 | Header | Demo | 1 | Pass |
 | Header | Privacy | 1 | Pass |
-| Header | Local night service | 3 | Pass |
+| Header | Ready to plan | 3 | Pass |
 | First screen | Planner for casual limited events | 5 | Pass |
 | First screen | Plan a fair tabletop event. | 5 | Pass |
 | First screen | For hosts using mixed components, build a fair schedule before friends arrive. | 11 | Pass |
@@ -38,9 +38,8 @@ labels, not prose sentences.
 | Step 4 | Use the timer and print the host sheet. | 8 | Pass |
 | Footer | Plan a casual limited event from mixed components. | 8 | Pass |
 | Footer | Your plan stays in this browser. | 6 | Pass |
-| Footer | Poster artwork is original AI-generated imagery. | 6 | Pass |
 | Footer links | Privacy · Terms · Source | 3 | Pass |
-| Footer | Built by Param Factory · Build 1.0.4-repair-8 | 6 | Pass |
+| Footer | Built by Param Factory · Build 1.0.5-polish-1 | 6 | Pass |
 
 All prose sentences are 22 words or fewer. The landing source was scanned for
 the banned terms `leverage`, `seamless`, `effortless`, `robust`, `powerful`,

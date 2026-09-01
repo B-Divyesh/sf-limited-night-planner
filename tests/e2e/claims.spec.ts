@@ -53,6 +53,9 @@ test('@claim:demo-sandbox sample data is reset and never becomes a real plan', a
 
   await page.goto('/demo/');
   await expect(page.getByRole('heading', { level: 1, name: 'Saturday mixed box night' })).toBeVisible();
+  await page.goto('/?demo=1');
+  await expect(page.getByRole('heading', { level: 1, name: 'Saturday mixed box night' })).toBeVisible();
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
 });
 
 test('@claim:core-planning shows stock, seating, timer, and the host sheet', async ({ page }) => {
@@ -62,7 +65,7 @@ test('@claim:core-planning shows stock, seating, timer, and the host sheet', asy
   await expect(page.getByText(/Avery sits out|Morgan sits out|Sam sits out|Jo sits out|Kai sits out/).first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Start timer' })).toBeVisible();
   await page.getByRole('button', { name: '04 Host sheet' }).click();
-  await expect(page.getByRole('heading', { name: 'Before departure' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Set-up checklist' })).toBeVisible();
 });
 
 test('@claim:local-plan-data demo use sends no plan data away from this origin', async ({ page }) => {

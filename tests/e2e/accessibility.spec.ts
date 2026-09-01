@@ -94,16 +94,16 @@ test('planner step changes move focus to the h1 and announce the new step', asyn
   await expect(page.locator('#announcer')).toHaveText('Stop 03: Schedule.');
 });
 
-test('privacy and terms pages have no serious accessibility violations', async ({ page }) => {
-  for (const path of ['/privacy/', '/terms/']) {
+test('legal and not-found pages have no serious accessibility violations', async ({ page }) => {
+  for (const path of ['/privacy/', '/terms/', '/this-route-does-not-exist']) {
     await page.goto(path);
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
   }
 });
 
-test('privacy and terms provide a keyboard skip link to their main content', async ({ page }) => {
-  for (const path of ['/privacy/', '/terms/']) {
+test('legal and not-found pages provide a keyboard skip link to their main content', async ({ page }) => {
+  for (const path of ['/privacy/', '/terms/', '/this-route-does-not-exist']) {
     await page.goto(path);
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();

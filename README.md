@@ -22,14 +22,14 @@ browser database and is discarded when you start for real.
 
 ## Run locally
 
-Requires Node.js 22 or a current Node.js LTS release.
+Requires Node.js 22 or later.
 
 ```sh
 npm install
 npm run dev
 ```
 
-Vite prints the local development URL. Plans are browser-local, so each browser profile has its own data.
+Vite prints the local address. Each browser keeps its own plans.
 
 ## Test and build
 
@@ -42,17 +42,15 @@ npm run test:claims
 npm run build
 ```
 
-The billing service's live contract has a separate, intentional network check.
-It checks browser-origin CORS, a normal readable invalid-token response, then
-sends 300 distinct invalid verification tokens and expects rapid requests to
-receive HTTP 429 responses with `Retry-After`; run it only when checking the
-deployed Sociobot billing endpoint:
+The deployed billing service has a separate check. Run this only when checking
+that service. It sends test licenses and confirms repeated checks are
+temporarily limited:
 
 ```sh
 npm run test:license-rate-limit
 ```
 
-The exact production command is `npm run build`. It creates the static deploy artifact in `dist/`, with `dist/index.html` at its root and a generated, versioned service worker precache.
+Use `npm run build` for production. It creates the deployable site in `dist/`.
 
 To inspect the production build:
 
@@ -62,18 +60,20 @@ npm run preview
 
 ## Data, privacy, and billing
 
-Current and archived plans use IndexedDB. License state uses localStorage. No
-plan data is sent to a server. The app has no advertising, behavioral
-analytics, trackers, third-party fonts, or social embeds. The only application
-API request is an optional existing Night Pass license verification against the
-Sociobot billing service. Sociobot/Dodo is the merchant of record.
+Plans and an existing Night Pass status stay in this browser. No plan data is
+sent to a server. The app has no advertising, behavioral analytics, trackers,
+third-party fonts, or social embeds. Restoring an existing Night Pass sends its
+license token to Sociobot for a check. Sociobot/Dodo is the merchant of record.
 
 See [the privacy policy](./privacy/index.html) and [terms](./terms/index.html).
-The product research is in [`.factory/brief.json`](./.factory/brief.json), the
-visual system and generated-art provenance are in [`.factory/design.md`](./.factory/design.md),
-the demo contract is in [`.factory/demo.md`](./.factory/demo.md), the claim
-tests are in [`.factory/claims.json`](./.factory/claims.json), and verification
-notes are in [`.factory/handoff.md`](./.factory/handoff.md).
+
+## Project notes
+
+- [Brief](./.factory/brief.json)
+- [Design and artwork provenance](./.factory/design.md)
+- [Demo](./.factory/demo.md)
+- [Claims and tests](./.factory/claims.json)
+- [Handoff](./.factory/handoff.md)
 
 ## License
 

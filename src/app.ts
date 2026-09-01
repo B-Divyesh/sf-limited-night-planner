@@ -30,7 +30,7 @@ import {
 } from './license';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD_ID = '1.0.4-repair-8';
+const BUILD_ID = '1.0.5-polish-1';
 const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
 const demoMode = normalizedPath === '/demo' || new URL(location.href).searchParams.get('demo') === '1';
 let plan: Plan | null = null;
@@ -127,13 +127,13 @@ function masthead(): string {
       <span>Limited Night Planner</span>
     </a>
     <nav class="masthead-nav" aria-label="Primary"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a></nav>
-    ${demoMode ? '<span class="service-label">Sample route</span>' : plan ? `<span class="save-state" id="save-status">${storageFailed ? 'Save needs attention' : 'Saved on this device'}</span>` : '<span class="service-label">Local night service</span>'}
+    ${demoMode ? '<span class="service-label">Sample plan</span>' : plan ? `<span class="save-state" id="save-status">${storageFailed ? 'Save needs attention' : 'Saved on this device'}</span>` : '<span class="service-label">Ready to plan</span>'}
   </header>`;
 }
 
 function footer(): string {
   return `<footer class="footer">
-    <div><strong>Plan a casual limited event from mixed components.</strong><br />Your plan stays in this browser. Poster artwork is original AI-generated imagery.</div>
+    <div><strong>Plan a casual limited event from mixed components.</strong><br />Your plan stays in this browser.</div>
     <nav aria-label="Site links"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-limited-night-planner" rel="noreferrer">Source</a></nav>
     <small>Built by Param Factory · Build ${BUILD_ID}</small>
   </footer>`;
@@ -219,11 +219,11 @@ function inventoryView(): string {
     <div class="empty-state"><span class="empty-mark" aria-hidden="true">＋</span><h3>No components counted yet</h3><p>Add each box, bundle, or compatible group. You can exclude doubtful groups without deleting the count.</p><button class="button button-secondary" data-action="add-item">Add first group</button></div>`;
   return `<section class="work-grid">
     <div class="work-main">
-      <section aria-labelledby="details-title"><div class="section-heading"><div><p class="eyebrow">Departure</p><h2 id="details-title">Night details</h2></div></div>
+      <section aria-labelledby="details-title"><div class="section-heading"><div><p class="eyebrow">Event details</p><h2 id="details-title">Night details</h2></div></div>
         <div class="field-grid">${field('Event name', 'eventName', plan!.eventName, 'text', 'maxlength="80" required')}${field('Date', 'eventDate', plan!.eventDate, 'date')}${field('Doors open', 'startTime', plan!.startTime, 'time')}${field('Players', 'players', plan!.players, 'number', 'min="2" max="64" inputmode="numeric"')}</div>
         <label class="field"><span>Player names <small>optional, one per line</small></span><textarea data-field="playerNames" rows="4" placeholder="Avery&#10;Morgan&#10;Sam&#10;Jo">${escapeHtml(plan!.playerNames.join('\n'))}</textarea></label>
       </section>
-      <section aria-labelledby="inventory-title"><div class="section-heading"><div><p class="eyebrow">Arrivals board</p><h2 id="inventory-title">Usable inventory</h2></div><button class="button button-secondary" data-action="add-item">＋ Add group</button></div>
+      <section aria-labelledby="inventory-title"><div class="section-heading"><div><p class="eyebrow">Inventory</p><h2 id="inventory-title">Usable inventory</h2></div><button class="button button-secondary" data-action="add-item">＋ Add group</button></div>
         <p class="section-intro">Count broad groups; use the note for uncertainty. Uncheck anything that may not mix safely.</p>
         <div class="inventory-list">${items}</div>
       </section>
@@ -250,7 +250,7 @@ function feasibilityCard(result = calculateFeasibility(plan!)): string {
     short: ['Short for this deal', `Find ${Math.abs(result.difference).toLocaleString()} more or reduce the pool.`],
   } as const;
   return `<aside class="departure-board" aria-labelledby="board-title">
-    <p class="eyebrow">Live departure board</p><h2 id="board-title">${labels[result.status][0]}</h2><p class="status-copy">${labels[result.status][1]}</p>
+    <p class="eyebrow">Component check</p><h2 id="board-title">${labels[result.status][0]}</h2><p class="status-copy">${labels[result.status][1]}</p>
     <dl><div><dt>Usable</dt><dd>${result.available.toLocaleString()}</dd></div><div><dt>Needed</dt><dd>${result.required.toLocaleString()}</dd></div><div><dt>Per player</dt><dd>${result.perPlayer.toLocaleString()}</dd></div><div class="difference ${result.status}"><dt>${result.difference < 0 ? 'Short' : 'Spare'}</dt><dd>${Math.abs(result.difference).toLocaleString()}</dd></div></dl>
     <p class="board-note">Counts update from checked groups. “Needed” includes your reserve.</p>
   </aside>`;
@@ -261,7 +261,7 @@ function formatView(): string {
   const uniqueRounds = plan!.players % 2 === 0 ? plan!.players - 1 : plan!.players;
   return `<section class="work-grid">
     <div class="work-main">
-      <section aria-labelledby="deal-title"><div class="section-heading"><div><p class="eyebrow">Assembly route</p><h2 id="deal-title">How will you divide the pile?</h2></div></div>
+      <section aria-labelledby="deal-title"><div class="section-heading"><div><p class="eyebrow">Pool format</p><h2 id="deal-title">How will you divide the pile?</h2></div></div>
         <div class="choice-grid" role="radiogroup" aria-label="Pool format">
           <label class="choice"><input type="radio" name="mode" data-field="mode" value="packs" ${plan!.mode === 'packs' ? 'checked' : ''}/><span><strong>Make packs</strong><small>Equal sealed bundles for each player.</small></span></label>
           <label class="choice"><input type="radio" name="mode" data-field="mode" value="pools" ${plan!.mode === 'pools' ? 'checked' : ''}/><span><strong>Deal direct pools</strong><small>Skip packs and give each player one pool.</small></span></label>
@@ -272,11 +272,11 @@ function formatView(): string {
           ${field('Shared reserve', 'reserve', plan!.reserve, 'number', 'min="0" max="99999"')}
         </div>
       </section>
-      <section aria-labelledby="timing-title"><div class="section-heading"><div><p class="eyebrow">Working timetable</p><h2 id="timing-title">Set the pace</h2></div></div>
+      <section aria-labelledby="timing-title"><div class="section-heading"><div><p class="eyebrow">Event timing</p><h2 id="timing-title">Set the pace</h2></div></div>
         <div class="field-grid three">${field('Setup minutes', 'setupMinutes', plan!.setupMinutes, 'number', 'min="0" max="240"')}${field('Build minutes', 'buildMinutes', plan!.buildMinutes, 'number', 'min="0" max="240"')}${field('Rounds', 'rounds', plan!.rounds, 'number', 'min="1" max="20"')}${field('Round minutes', 'roundMinutes', plan!.roundMinutes, 'number', 'min="1" max="240"')}${field('Changeover minutes', 'breakMinutes', plan!.breakMinutes, 'number', 'min="0" max="60"')}</div>
         <p id="repeat-opponent-guidance" class="field-help" role="status" aria-live="polite">${plan!.rounds > uniqueRounds ? `With ${plan!.players} players, opponents begin repeating after round ${uniqueRounds}.` : ''}</p>
       </section>
-      <section aria-labelledby="notes-title"><div class="section-heading"><div><p class="eyebrow">Exception desk</p><h2 id="notes-title">Compatibility and house notes</h2></div></div>
+      <section aria-labelledby="notes-title"><div class="section-heading"><div><p class="eyebrow">Compatibility notes</p><h2 id="notes-title">Compatibility and house notes</h2></div></div>
         <label class="field"><span>What must the host check?</span><textarea data-field="compatibilityNotes" rows="6" placeholder="Sleeve groups with different backs. Keep the six marked pieces together. Explain the replacement-token rule before building.">${escapeHtml(plan!.compatibilityNotes)}</textarea></label>
         <p class="field-help">Write only your own notes. This planner does not reproduce publisher rules.</p>
       </section>
@@ -303,7 +303,7 @@ function scheduleView(): string {
   const percent = total ? Math.max(0, Math.min(100, (remaining / total) * 100)) : 0;
   return `<section class="schedule-layout">
     <section class="timer-panel" aria-labelledby="timer-title">
-      <p class="eyebrow">Live night mode</p><h2 id="timer-title">${rounds.length ? `Round ${currentRound + 1}` : 'Round timer'}</h2>
+      <p class="eyebrow">Round timer</p><h2 id="timer-title">${rounds.length ? `Round ${currentRound + 1}` : 'Round timer'}</h2>
       <div class="timer-clock" role="timer" aria-live="off" aria-label="${Math.floor(remaining / 60)} minutes ${remaining % 60} seconds remaining">${formatDuration(remaining)}</div>
       <div class="timer-track" aria-hidden="true"><span style="width:${percent}%"></span></div>
       <div class="timer-actions">
@@ -313,7 +313,7 @@ function scheduleView(): string {
       </div>
       <p class="timer-note">The timer continues if you switch tabs. Keep this screen awake using your device settings.</p>
     </section>
-    <section aria-labelledby="schedule-title"><div class="section-heading"><div><p class="eyebrow">Generated route</p><h2 id="schedule-title">Rounds and seating</h2></div></div>
+    <section aria-labelledby="schedule-title"><div class="section-heading"><div><p class="eyebrow">Schedule</p><h2 id="schedule-title">Rounds and seating</h2></div></div>
       ${rounds.length ? `<div class="round-list">${rounds.map((round) => roundCard(round, currentRound)).join('')}</div>` : '<div class="empty-state"><h3>Add a valid date and time</h3><p>Return to Inventory to set when doors open.</p></div>'}
     </section>
   </section>`;
@@ -331,13 +331,13 @@ function hostSheetView(): string {
   const rounds = buildRounds(plan!);
   return `<section class="host-page">
     <section class="print-sheet" aria-labelledby="sheet-title">
-      <header class="sheet-header"><div><p class="eyebrow">Limited night · host route</p><h2 id="sheet-title">${escapeHtml(plan!.eventName)}</h2><p>${escapeHtml(plan!.eventDate)} · Doors ${escapeHtml(plan!.startTime)} · ${plan!.players} players</p></div><div class="sheet-status ${result.status}"><span>${result.difference >= 0 ? 'Ready' : 'Short'}</span><strong>${result.available}/${result.required}</strong><small>usable / needed</small></div></header>
-      <section class="checklist" aria-labelledby="checklist-title"><h3 id="checklist-title">Before departure</h3><ul><li><span></span>Count ${result.required.toLocaleString()} components into ${plan!.mode === 'packs' ? `${plan!.players * plan!.packsPerPlayer} packs of ${plan!.componentsPerPack}` : `${plan!.players} pools of ${plan!.componentsPerPlayer}`}.</li><li><span></span>Set aside the ${plan!.reserve.toLocaleString()}-component reserve.</li><li><span></span>Confirm every included inventory group below.</li><li><span></span>Read compatibility notes before players build.</li><li><span></span>Start the first round at ${rounds[0]?.startsAt ?? 'the planned time'}.</li></ul></section>
+      <header class="sheet-header"><div><p class="eyebrow">Host sheet</p><h2 id="sheet-title">${escapeHtml(plan!.eventName)}</h2><p>${escapeHtml(plan!.eventDate)} · Doors ${escapeHtml(plan!.startTime)} · ${plan!.players} players</p></div><div class="sheet-status ${result.status}"><span>${result.difference >= 0 ? 'Ready' : 'Short'}</span><strong>${result.available}/${result.required}</strong><small>usable / needed</small></div></header>
+      <section class="checklist" aria-labelledby="checklist-title"><h3 id="checklist-title">Set-up checklist</h3><ul><li><span></span>Count ${result.required.toLocaleString()} components into ${plan!.mode === 'packs' ? `${plan!.players * plan!.packsPerPlayer} packs of ${plan!.componentsPerPack}` : `${plan!.players} pools of ${plan!.componentsPerPlayer}`}.</li><li><span></span>Set aside the ${plan!.reserve.toLocaleString()}-component reserve.</li><li><span></span>Confirm every included inventory group below.</li><li><span></span>Read compatibility notes before players build.</li><li><span></span>Start the first round at ${rounds[0]?.startsAt ?? 'the planned time'}.</li></ul></section>
       <div class="sheet-columns"><section><h3>Inventory manifest</h3><ul class="manifest-list">${plan!.inventory.filter((item) => item.included).map((item) => `<li><span>□ ${escapeHtml(item.name || 'Unnamed group')}</span><strong>${item.count.toLocaleString()}</strong>${item.note ? `<small>${escapeHtml(item.note)}</small>` : ''}</li>`).join('') || '<li>No groups included.</li>'}</ul></section>
       <section><h3>Exception notes</h3><p class="preserve-lines">${escapeHtml(plan!.compatibilityNotes) || 'No compatibility notes entered.'}</p><h3>Host notes</h3><label class="field print-notes"><span class="sr-only">Host notes</span><textarea data-field="hostNotes" rows="5" placeholder="Door code, snack break, borrowed pieces…">${escapeHtml(plan!.hostNotes)}</textarea></label></section></div>
-      <section><h3>Round route</h3><div class="print-rounds">${rounds.map((round) => roundCard(round)).join('')}</div></section>
+      <section><h3>Rounds and seating</h3><div class="print-rounds">${rounds.map((round) => roundCard(round)).join('')}</div></section>
     </section>
-    <aside class="host-tools" aria-labelledby="tools-title"><p class="eyebrow">Dispatch desk</p><h2 id="tools-title">Take the plan with you</h2><button class="button button-primary" data-action="print">Print host sheet</button><button class="button button-secondary" data-action="export-json">Export JSON backup</button><button class="button button-secondary" data-action="export-csv">Export CSV</button><label class="button button-secondary file-button">Import JSON<input type="file" id="import-file" accept="application/json,.json" /></label><p>Exports are always free and work offline.</p>
+    <aside class="host-tools" aria-labelledby="tools-title"><p class="eyebrow">Print and export</p><h2 id="tools-title">Take the plan with you</h2><button class="button button-primary" data-action="print">Print host sheet</button><button class="button button-secondary" data-action="export-json">Export JSON backup</button><button class="button button-secondary" data-action="export-csv">Export CSV</button><label class="button button-secondary file-button">Import JSON<input type="file" id="import-file" accept="application/json,.json" /></label><p>Exports are always free and work offline.</p>
       ${nightPassView()}
     </aside>
   </section>`;

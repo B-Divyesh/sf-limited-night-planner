@@ -38,18 +38,28 @@ test('adding inventory cannot steal an immediate count entry with deferred focus
   await expect(page.getByText('Count must be between 0 and 1,000,000. Using 1,000,000.')).toBeVisible();
 });
 
-test('unknown routes are real 404s and standard routes expose discovery metadata', async ({ page }) => {
+test('standard routes have a shared header and footer, and the 404 is a complete route', async ({ page }) => {
   const missing = await page.goto('/this-route-does-not-exist');
   expect(missing?.status()).toBe(404);
-  await expect(page.getByRole('heading', { level: 1, name: 'This page is not on the route.' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Page not found' })).toBeVisible();
 
-  for (const path of ['/', '/privacy/', '/terms/']) {
+  for (const path of ['/', '/demo/', '/privacy/', '/terms/', '/this-route-does-not-exist']) {
     await page.goto(path);
+    await expect(page.getByRole('link', { name: /skip to (planner|main content)/i })).toBeVisible();
+    const siteHeader = page.locator('header.masthead, header.site-header');
+    await expect(siteHeader).toContainText('Limited Night Planner');
+    await expect(siteHeader.getByRole('link', { name: 'Demo' })).toBeVisible();
+    await expect(siteHeader.getByRole('link', { name: 'Privacy' })).toBeVisible();
+    await expect(page.locator('footer')).toContainText('Plan a casual limited event from mixed components.');
+    await expect(page.locator('footer').getByRole('link', { name: 'Privacy' })).toBeVisible();
+    await expect(page.locator('footer').getByRole('link', { name: 'Terms' })).toBeVisible();
+    await expect(page.locator('main')).toHaveAttribute('id', 'main');
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
     await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
   }
 
   await page.goto('/');
-  await expect(page.getByText(/Built by Param Factory · Build 1\.0\.4-repair-8/)).toBeVisible();
+  await expect(page.getByText(/Poster artwork is original AI-generated imagery/i)).toHaveCount(0);
+  await expect(page.getByText(/Built by Param Factory · Build 1\.0\.5-polish-1/)).toBeVisible();
 });

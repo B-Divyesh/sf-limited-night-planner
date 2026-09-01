@@ -52,7 +52,7 @@ test('generates odd-player seating, runs the timer, and exports a host sheet', a
   await page.getByRole('button', { name: 'Start timer' }).click();
   await expect(page.getByRole('timer')).not.toHaveText('45:00', { timeout: 3_000 });
   await page.getByRole('button', { name: /next: host sheet/i }).click();
-  await expect(page.getByRole('heading', { name: /before departure/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /set-up checklist/i })).toBeVisible();
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: /export json backup/i }).click();
   await expect((await downloadPromise).suggestedFilename()).toContain('friday-night-limited');
