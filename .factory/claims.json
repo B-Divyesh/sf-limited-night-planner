@@ -116,6 +116,6 @@
     "claim": "Exports work offline.",
     "where": "Host sheet",
     "test": "npm run test:claims -- --grep @claim:offline-export",
-    "sandbox": "dedicated fresh browser context; load the demo, wait for service-worker control, go offline, reload, and download the CSV host sheet"
+    "sandbox": "dedicated fresh browser context; load the demo, wait for service-worker control, go offline, reload, then download and inspect both the JSON plan backup and CSV host sheet"
   }
 ]

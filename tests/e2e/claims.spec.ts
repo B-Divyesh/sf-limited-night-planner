@@ -234,7 +234,7 @@ test('@claim:round-cycle-warning warns before a five-player schedule starts repe
   await expect(page.locator('#repeat-opponent-guidance')).toHaveText('With 5 players, opponents begin repeating after round 5.');
 });
 
-test('@claim:offline-export downloads the CSV host sheet after the demo is offline', async ({ browser }) => {
+test('@claim:offline-export downloads complete JSON and CSV exports after the demo is offline', async ({ browser }) => {
   const context = await browser.newContext({ baseURL: 'http://127.0.0.1:4173' });
   const page = await context.newPage();
   try {
@@ -244,11 +244,22 @@ test('@claim:offline-export downloads the CSV host sheet after the demo is offli
     await context.setOffline(true);
     await page.reload();
     await expect(page.getByText(/offline service/i)).toBeVisible();
-    const downloadPromise = page.waitForEvent('download');
+    const jsonDownloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /export json backup/i }).click();
+    const jsonPath = await (await jsonDownloadPromise).path();
+    expect(jsonPath).not.toBeNull();
+    const json = JSON.parse(await readFile(jsonPath!, 'utf8')) as { eventName: string; inventory: unknown[] };
+    expect(json.eventName).toBe('Saturday mixed box night');
+    expect(json.inventory).toHaveLength(2);
+
+    const csvDownloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: /^export csv$/i }).click();
-    const path = await (await downloadPromise).path();
-    expect(path).not.toBeNull();
-    expect(await readFile(path!, 'utf8')).toContain('"Round","Start","End","Table","Player A","Player B"');
+    const csvPath = await (await csvDownloadPromise).path();
+    expect(csvPath).not.toBeNull();
+    const csv = await readFile(csvPath!, 'utf8');
+    expect(csv).toContain('"Inventory","Count","Included","Note"');
+    expect(csv).toContain('"Round","Start","End","Table","Player A","Player B"');
+    expect(csv.split(/\r?\n/).length).toBeGreaterThan(15);
   } finally {
     await context.close();
   }
