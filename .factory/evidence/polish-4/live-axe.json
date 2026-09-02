@@ -1,0 +1,62 @@
+[
+  {
+    "viewport": "desktop",
+    "path": "/",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "desktop",
+    "path": "/demo/",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "desktop",
+    "path": "/privacy/",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "desktop",
+    "path": "/terms/",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "desktop",
+    "path": "/this-route-does-not-exist",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "mobile",
+    "path": "/",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "mobile",
+    "path": "/demo/",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "mobile",
+    "path": "/privacy/",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "mobile",
+    "path": "/terms/",
+    "violations": 0,
+    "seriousOrCritical": []
+  },
+  {
+    "viewport": "mobile",
+    "path": "/this-route-does-not-exist",
+    "violations": 0,
+    "seriousOrCritical": []
+  }
+]

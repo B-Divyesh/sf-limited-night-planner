@@ -1,0 +1,14 @@
+{
+  "url": "https://limited-night-planner.sociobot.in/",
+  "loadMs": 897,
+  "errors": [],
+  "a11y": {
+    "title": "Limited Night Planner — plan a tabletop event",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 1921
+  }
+}
