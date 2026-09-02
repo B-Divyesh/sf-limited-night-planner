@@ -1,23 +1,47 @@
-# Limited Night Planner — polish 2 handoff
+# Limited Night Planner — independent verification 11 handoff
 
 ## Result
 
-Released the repair commit `fdf80aac1de7a4524fc2377fc9ef7992bf57400f` to
-<https://limited-night-planner.sociobot.in/>. Deployment ID:
-`df03accf-8040-4401-a8bd-1092c7b868ee`.
+**PASS — accept candidate
+`fdf80aac1de7a4524fc2377fc9ef7992bf57400f`.**
 
-The review-2 findings are closed.
+Production at <https://limited-night-planner.sociobot.in/> matches the
+candidate's public build files byte-for-byte. Product code was not changed.
+The complete evidence and defect accounting are in
+[`verification-11.md`](./verification-11.md).
 
-- The desktop landing screen now shows its offline, privacy, and free-price
-  facts without scrolling. Their live bottom edges are 670.2, 695.8, and
-  721.4px in a 1440×900 viewport.
-- A real original 180×180 Apple touch icon ships at `/apple-touch-icon.png`.
-  Landing, demo, Privacy, Terms, and 404 all declare it.
-- Earlier review-1 fixes remain present: isolated `?demo=1`, direct copy,
-  shared route skeleton, legal metadata, keyboard skip links, and the designed
-  404.
+## Verification summary
 
-## How to run and verify
+- All 17 exact `.factory/claims.json` commands passed in desktop and mobile:
+  34/34 browser executions.
+- `npm ci`, `npm run check`, `npm test` (14/14), `npm run build`, and
+  `npm run test:e2e` (82/82) passed from the exact candidate checkout.
+- The live first screen states what the planner does, names event hosts, and
+  offers a one-click sample with a stated outcome at desktop and 390 px.
+- Live normal, empty, shortage, boundary, invalid-import, persistence,
+  demo-isolation, timer, print, and JSON/CSV workflows passed.
+- Live Axe scans found zero serious/critical findings across every route and
+  planner step on desktop and mobile. Keyboard, focus, 44 px targets, 200% text,
+  reduced motion, and 390 px overflow checks passed.
+- The full live workflow used only the product origin, set no cookies, and
+  produced no console or page errors. Headers and caching passed.
+- The license endpoint allowed 30 requests, then returned 270 HTTP 429
+  responses with `Retry-After` during the required 300-request burst.
+- Live PWA control, cache population, update check, offline reload, and offline
+  export passed. The local update simulation also passed.
+- All 31 public build files matched production byte-for-byte.
+- Fresh mobile Lighthouse scores: performance 100, accessibility 100, best
+  practices 100, SEO 100. LCP 1.65 s, CLS 0.0066, TBT 0 ms; maximum observed
+  interaction event 88 ms.
+
+## Defects by severity
+
+- Critical: none.
+- High: none.
+- Medium: none.
+- Low: none found in the checked scope.
+
+## How to verify
 
 ```sh
 npm ci
@@ -27,28 +51,13 @@ npm run build
 npm run test:e2e
 ```
 
-Run every exact command listed in `.factory/claims.json` with `npm run
-test:claims -- --grep @claim:<id>`. Open `/demo/` or `?demo=1` for the
-separate sample workspace. Use **Reset demo** to restore its sample and
-**Start for real** to discard it.
-
-## Exact evidence
-
-- A new clean clone passed `npm ci`, `npm run check`, `npm test` (14 tests),
-  `npm run build`, all 17 exact claim commands (34 browser runs), and
-  `npm run test:e2e` (82 tests).
-- Local first-screen evidence: `evidence/polish-2/local-root-desktop.png` and
-  `local-verify/verify.json`.
-- Live first-screen evidence: `evidence/polish-2/live-root-desktop.png` and
-  `live-review-2-check.json`.
-- Live route, title, 404, icon, and Axe evidence: `live-route-check.json`.
-- Live URL verifier evidence: `live-root-verify/verify.json` reports no
-  console errors, `lang=en`, one h1, one main landmark, image alternatives,
-  and labeled buttons.
-- Live mobile Lighthouse: performance 100 and accessibility 100 in
-  `live-lighthouse-mobile.json`.
+Run every exact `test` entry in `.factory/claims.json` individually. Use
+`/demo/` for the isolated sample workspace. Run
+`npm run test:license-rate-limit` only when verifying the product-specific
+Sociobot license endpoint.
 
 ## Known gaps and next steps
 
-None known. The product remains a local-first offline PWA. Deployment is
-static and needs no backend state or configuration.
+No release-blocking or other actionable defect was found. New Night Pass sales
+remain unavailable by design and are disclosed in the product; existing passes
+can still be restored. No deployment work is required for this verification.
