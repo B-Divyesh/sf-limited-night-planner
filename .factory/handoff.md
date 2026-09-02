@@ -1,61 +1,44 @@
-# Limited Night Planner — verification 13 handoff
+# Limited Night Planner — review 5 handoff
 
 ## Result
 
-**PASS.** Candidate `90876d28009965b691dfc875afb46591e7aed336` is accepted
-at <https://limited-night-planner.sociobot.in/>. Fresh byte comparison confirms
-all 33 publicly served production files exactly match this candidate’s build.
-Visible live build ID: `1.0.7-polish-4`.
+**FAIL.** Review 5 found three remaining issues and changed no product code:
 
-No product code was changed during this verification. The detailed independent
-report is [verification-13.md](./verification-13.md).
+- the `free-core-tools` claim test does not exercise printing;
+- the README's `without a card database` statement has no claims entry;
+- the landing heading `Ready with room` is unclear out of context.
 
-## How to run
+The complete report is [review-5.md](./review-5.md).
+
+## What was verified
+
+- Fresh production checks at 390×844 and 1440×900.
+- One-click demo content, reset, separate IndexedDB namespaces, preservation of
+  real data, same-origin requests, empty cookies, and offline reload.
+- All 17 exact `.factory/claims.json` commands from a clean clone: 34/34 browser
+  executions passed.
+- `npm run check`, `npm test` (17/17), `npm run build`, and
+  `npm run test:e2e` (86/86) passed from the clean clone.
+- Live `verify-url.sh` passed. Live Axe checks found zero violations on
+  landing, demo, Privacy, Terms, and 404 at mobile and desktop sizes.
+- Every earlier review finding was checked in production and source; all 22
+  remain fixed.
+
+## How to reproduce
 
 ```sh
 npm ci
 npm run check
 npm test
-npm run test:e2e
 npm run build
+npm run test:e2e
 ```
 
-Use `/demo/` or `?demo=1` for the isolated sample. The persistent demo banner
-offers **Reset demo** and **Start for real**. Sample data uses a separate
-browser database and is discarded when leaving demo mode.
+Run each `test` command in `.factory/claims.json` separately. Use `/demo/` for
+the isolated sample and test both 390×844 and 1440×900 against production.
 
-## Exact verification evidence
+## Next steps
 
-- Fresh checkout at `90876d28009965b691dfc875afb46591e7aed336`:
-  - `npm ci` passed with no reported vulnerabilities.
-  - `npm run check` passed.
-  - `npm test` passed, 17/17 tests.
-  - `npm run build` passed and produced `dist/`; 26 files were precached.
-    App JavaScript is 13.59 kB gzip and CSS is 6.07 kB gzip.
-  - Every exact command in `.factory/claims.json` ran separately before the
-    normal test gates and passed. The whole suite also passed: 17 claims, 34
-    desktop/390px browser executions.
-  - `npm run test:e2e` passed, 86/86 browser checks. This includes unit,
-    integration, keyboard, route focus, route metadata, storage failure,
-    privacy, offline reload/export, service-worker update, demo isolation, and
-    browser Axe coverage.
-- Production cold-read passed: headline identifies the tabletop planning job,
-  identifies hosts with mixed components, and offers **Try it with sample
-  data** first. One click opens the isolated demo banner with reset/start-real
-  controls.
-- Live request capture found only same-origin page resources, no cookies, and
-  no console/page errors. Production headers provide CSP, HSTS, nosniff,
-  strict referrer policy, and immutable caching for hashes.
-- Live offline reload after service-worker control passed at `/demo/`; the
-  sample host sheet and offline notice remained available.
-- Live Axe across Landing, Demo, Privacy, Terms, and 404 found zero serious or
-  critical findings. Mobile Lighthouse was 100 for performance, accessibility,
-  best practices, and SEO (FCP 1.4 s, LCP 1.5 s, CLS 0, TBT 0 ms).
-- The live rate-limit check observed 30 readable invalid-token responses out
-  of 300 rapid requests, then 270 HTTP 429 responses with `Retry-After`.
-
-## Known gaps and next steps
-
-None. New Night Pass sales remain intentionally unavailable; existing verified
-passes can restore local archives, as disclosed on the landing page, in the
-planner, README, Privacy, and Terms.
+Address F-5-1 through F-5-3 in `.factory/review-5.md`, then rerun the complete
+review. No infrastructure, DNS, billing, deployment, or product code was
+changed in this work order.
