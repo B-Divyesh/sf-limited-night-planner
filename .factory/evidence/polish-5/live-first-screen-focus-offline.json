@@ -1,0 +1,57 @@
+[
+  {
+    "name": "first-screen-desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "viewportHeight": 900,
+    "factBottoms": {
+      "Works offline after the first visit.": 725,
+      "Plan data stays in this browser.": 751,
+      "Planning, timers, printing, and exports stay free.": 777
+    },
+    "noOverflow": true,
+    "title": "Limited Night Planner — plan a tabletop event",
+    "h1": "Plan pools and roundsfor a tabletop event.",
+    "sampleAction": 1
+  },
+  {
+    "name": "first-screen-mobile",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "viewportHeight": 844,
+    "factBottoms": {
+      "Works offline after the first visit.": 775,
+      "Plan data stays in this browser.": 801,
+      "Planning, timers, printing, and exports stay free.": 826
+    },
+    "noOverflow": true,
+    "title": "Limited Night Planner — plan a tabletop event",
+    "h1": "Plan pools and roundsfor a tabletop event.",
+    "sampleAction": 1
+  },
+  {
+    "name": "route-focus",
+    "demoUrl": "https://limited-night-planner.sociobot.in/demo/",
+    "rootUrl": "https://limited-night-planner.sociobot.in/",
+    "demoFocus": {
+      "id": "planner-step-title",
+      "text": "Saturday mixed box night",
+      "announced": "Demo opened."
+    },
+    "rootFocus": {
+      "tag": "H1",
+      "text": "Plan pools and roundsfor a tabletop event.",
+      "announced": "Planner opened."
+    }
+  },
+  {
+    "name": "offline-demo-reload",
+    "controlledBeforeOffline": true,
+    "offlineHeading": "Saturday mixed box night",
+    "offlineBanner": true
+  }
+]
