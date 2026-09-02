@@ -1,0 +1,176 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "expectedStatus": 200,
+      "status": 200,
+      "errors": [],
+      "seriousOrCritical": [],
+      "metadata": {
+        "title": "Limited Night Planner — plan a tabletop event",
+        "lang": "en",
+        "h1": 1,
+        "main": true,
+        "canonical": "https://limited-night-planner.sociobot.in/",
+        "ogUrl": "https://limited-night-planner.sociobot.in/",
+        "touchIcon": "/apple-touch-icon.png"
+      }
+    },
+    {
+      "path": "/demo/",
+      "expectedStatus": 200,
+      "status": 200,
+      "errors": [],
+      "seriousOrCritical": [],
+      "metadata": {
+        "title": "Demo — Limited Night Planner",
+        "lang": "en",
+        "h1": 1,
+        "main": true,
+        "canonical": "https://limited-night-planner.sociobot.in/demo/",
+        "ogUrl": "https://limited-night-planner.sociobot.in/demo/",
+        "touchIcon": "/apple-touch-icon.png"
+      }
+    },
+    {
+      "path": "/privacy/",
+      "expectedStatus": 200,
+      "status": 200,
+      "errors": [],
+      "seriousOrCritical": [],
+      "metadata": {
+        "title": "Privacy — Limited Night Planner",
+        "lang": "en",
+        "h1": 1,
+        "main": true,
+        "canonical": "https://limited-night-planner.sociobot.in/privacy/",
+        "ogUrl": "https://limited-night-planner.sociobot.in/privacy/",
+        "touchIcon": "/apple-touch-icon.png"
+      }
+    },
+    {
+      "path": "/terms/",
+      "expectedStatus": 200,
+      "status": 200,
+      "errors": [],
+      "seriousOrCritical": [],
+      "metadata": {
+        "title": "Terms — Limited Night Planner",
+        "lang": "en",
+        "h1": 1,
+        "main": true,
+        "canonical": "https://limited-night-planner.sociobot.in/terms/",
+        "ogUrl": "https://limited-night-planner.sociobot.in/terms/",
+        "touchIcon": "/apple-touch-icon.png"
+      }
+    },
+    {
+      "path": "/this-route-does-not-exist",
+      "expectedStatus": 404,
+      "status": 404,
+      "errors": [],
+      "seriousOrCritical": [],
+      "metadata": {
+        "title": "Page not found — Limited Night Planner",
+        "lang": "en",
+        "h1": 1,
+        "main": true,
+        "canonical": "https://limited-night-planner.sociobot.in/404.html",
+        "ogUrl": "https://limited-night-planner.sociobot.in/404.html",
+        "touchIcon": "/apple-touch-icon.png"
+      },
+      "expectedNetwork404ConsoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ]
+    }
+  ],
+  "interaction": {
+    "demoFocus": true,
+    "demoAnnouncement": "Demo opened.",
+    "backFocus": true,
+    "backAnnouncement": "Planner opened."
+  },
+  "queryDemo": {
+    "url": "https://limited-night-planner.sociobot.in/demo/",
+    "title": "Demo — Limited Night Planner",
+    "canonical": "https://limited-night-planner.sociobot.in/demo/",
+    "ogUrl": "https://limited-night-planner.sociobot.in/demo/",
+    "banner": true
+  },
+  "desktopFacts": {
+    "Works offline after the first visit.": {
+      "bottom": 670.21875,
+      "viewport": 900
+    },
+    "Plan data stays in this browser.": {
+      "bottom": 695.828125,
+      "viewport": 900
+    },
+    "Planning, timers, printing, and exports stay free.": {
+      "bottom": 721.4375,
+      "viewport": 900
+    }
+  },
+  "mobile": {
+    "viewport": 390,
+    "scrollWidth": 390,
+    "demoBanner": true,
+    "reset": true,
+    "startReal": true
+  },
+  "links": [
+    {
+      "href": "https://github.com/B-Divyesh/sf-limited-night-planner",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://limited-night-planner.sociobot.in/",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://limited-night-planner.sociobot.in/#main",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://limited-night-planner.sociobot.in/demo/",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://limited-night-planner.sociobot.in/demo/#main",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://limited-night-planner.sociobot.in/privacy/",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://limited-night-planner.sociobot.in/privacy/#main",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://limited-night-planner.sociobot.in/terms/",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://limited-night-planner.sociobot.in/terms/#main",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "href": "https://sociobot.in/",
+      "status": 200,
+      "ok": true
+    }
+  ],
+  "sameDocumentFragments": [
+    "https://limited-night-planner.sociobot.in/this-route-does-not-exist#main"
+  ]
+}
