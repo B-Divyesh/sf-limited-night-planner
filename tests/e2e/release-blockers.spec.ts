@@ -9,6 +9,21 @@ test('cold landing names event hosts, offers the sample first, and qualifies pai
   await expect(page.getByText(/repeat-free pairings/i)).toHaveCount(0);
 });
 
+test('desktop first screen keeps each offline, privacy, and free fact in view', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+
+  for (const fact of [
+    'Works offline after the first visit.',
+    'Plan data stays in this browser.',
+    'Planning, timers, printing, and exports stay free.',
+  ]) {
+    const bounds = await page.getByText(fact, { exact: true }).boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(900);
+  }
+});
+
 test('localStorage denial cannot block the free planner', async ({ page, context }) => {
   await context.addInitScript(() => {
     for (const method of ['getItem', 'setItem'] as const) {
@@ -57,7 +72,14 @@ test('standard routes have a shared header and footer, and the 404 is a complete
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
     await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    const touchIcon = page.locator('link[rel="apple-touch-icon"]');
+    await expect(touchIcon).toHaveAttribute('sizes', '180x180');
+    await expect(touchIcon).toHaveAttribute('href', '/apple-touch-icon.png');
   }
+
+  const icon = await page.request.get('/apple-touch-icon.png');
+  expect(icon.status()).toBe(200);
+  expect(icon.headers()['content-type']).toContain('image/png');
 
   await page.goto('/');
   await expect(page.getByText(/Poster artwork is original AI-generated imagery/i)).toHaveCount(0);

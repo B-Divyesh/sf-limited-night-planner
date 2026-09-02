@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { describe, expect, it } from 'vitest';
@@ -34,6 +34,11 @@ describe('static delivery policy', () => {
     expect(precache).toContain('/demo/index.html');
     expect(precache).toContain('/404.html');
     expect(precache).toContain('/offline.html');
-    expect(precache).toHaveLength(23);
+    expect(precache).toHaveLength(24);
+  });
+
+  it('ships an original 180 pixel Apple touch icon', async () => {
+    const icon = await stat(resolve('public/apple-touch-icon.png'));
+    expect(icon.size).toBeGreaterThan(0);
   });
 });
