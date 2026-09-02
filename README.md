@@ -1,7 +1,7 @@
 # Limited Night Planner
 
 Plan pools and rounds for a casual tabletop event. It is for hosts who
-need pools, seating, timed rounds, and a host sheet without a card database.
+need pools, seating, timed rounds, and a host sheet.
 
 Live: <https://limited-night-planner.sociobot.in>
 

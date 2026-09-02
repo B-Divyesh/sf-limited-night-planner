@@ -68,4 +68,14 @@ describe('review 1 plain-language regressions', () => {
     expect(redirect).toContain("url.searchParams.get('demo') === '1'");
     expect(redirect).toContain("window.location.replace('/demo/')");
   });
+
+  it('keeps the round-five copy concrete and lists no card-database promise', async () => {
+    const [app, readme] = await Promise.all([
+      readFile(resolve('src/app.ts'), 'utf8'),
+      readFile(resolve('README.md'), 'utf8'),
+    ]);
+    expect(app).toContain('Enough components for this plan');
+    expect(app).not.toContain('Ready with room');
+    expect(readme).not.toContain('without a card database');
+  });
 });

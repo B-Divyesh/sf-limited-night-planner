@@ -174,12 +174,25 @@ test('@claim:timer-background keeps counting while another tab is active', async
 });
 
 test('@claim:free-core-tools are available without a license', async ({ page }) => {
+  await page.addInitScript(() => {
+    let printCalls = 0;
+    Object.defineProperty(window, 'print', {
+      configurable: true,
+      value: () => {
+        printCalls += 1;
+        document.documentElement.dataset.printCalls = String(printCalls);
+      },
+    });
+  });
   await openDemo(page);
   await page.getByRole('button', { name: /schedule/i }).click();
   await expect(page.getByRole('button', { name: 'Start timer' })).toBeVisible();
   await page.getByRole('button', { name: 'Next: Host sheet →' }).click();
   const tools = page.locator('.host-tools');
-  await expect(tools.getByRole('button', { name: 'Print host sheet' })).toBeVisible();
+  const printButton = tools.getByRole('button', { name: 'Print host sheet' });
+  await expect(printButton).toBeVisible();
+  await printButton.click();
+  await expect.poll(() => page.locator('html').getAttribute('data-print-calls')).toBe('1');
   await expect(tools.getByRole('button', { name: 'Export JSON backup' })).toBeVisible();
   await expect(tools.getByRole('button', { name: 'Export CSV' })).toBeVisible();
 });

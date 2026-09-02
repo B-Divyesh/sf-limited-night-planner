@@ -31,7 +31,7 @@ not prose sentences.
 | Sample preview | See a completed five-player plan | 5 | Pass |
 | Sample preview | Check the count, first seating round, and host-sheet instruction before opening the sample. | 12 | Listed: `core-planning` |
 | Sample preview | Open the sample plan | 4 | Pass |
-| Sample preview | Ready with room | 3 | Listed: `core-planning` |
+| Sample preview | Enough components for this plan | 5 | Listed: `core-planning` |
 | Sample preview | 300 / 237 usable / needed | 5 | Listed: `core-planning` |
 | Sample preview | Count 237 components into 5 pools of 45. | 8 | Listed: `core-planning` |
 | Sample preview | Set aside the 12-component reserve. | 4 | Listed: `core-planning` |
@@ -60,7 +60,7 @@ not prose sentences.
 | Footer | Plan a casual limited event from mixed components. | 8 | Pass |
 | Footer | Your plan stays in this browser. | 6 | Listed: `local-plan-data` |
 | Footer links | Privacy · Terms · Source code (external) | 5 | Pass |
-| Footer | Built by Param Factory · Build 1.0.7-polish-4 | 6 | Pass |
+| Footer | Built by Param Factory · Build 1.0.8-polish-5 | 6 | Pass |
 
 All prose sentences are 22 words or fewer. The landing source was scanned for
 the banned terms `leverage`, `seamless`, `effortless`, `robust`, `powerful`,

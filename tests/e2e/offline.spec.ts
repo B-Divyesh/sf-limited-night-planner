@@ -7,7 +7,7 @@ test('creates, saves, and reopens a plan offline at phone width', async ({ page,
   await page.getByRole('button', { name: /add group/i }).click();
   await page.getByRole('spinbutton', { name: 'Count' }).fill('240');
   await page.getByRole('button', { name: /next: format/i }).click();
-  await expect(page.getByText('Ready with room')).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Enough components' })).toBeVisible();
   await page.waitForTimeout(500);
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);

@@ -30,7 +30,7 @@ import {
 } from './license';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD_ID = '1.0.7-polish-4';
+const BUILD_ID = '1.0.8-polish-5';
 const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
 const demoMode = normalizedPath === '/demo';
 let plan: Plan | null = null;
@@ -214,7 +214,7 @@ function landingSamplePreview(): string {
     <div class="sample-preview-board">
       <section class="preview-count" aria-labelledby="preview-count-title">
         <p class="eyebrow">Component check</p>
-        <h3 id="preview-count-title">Ready with room</h3>
+        <h3 id="preview-count-title">Enough components for this plan</h3>
         <p class="preview-total"><strong>${result.available}</strong><span>/</span><strong>${result.required}</strong></p>
         <p>usable / needed</p>
         <dl><div><dt>Each pool</dt><dd>${result.perPlayer}</dd></div><div><dt>Reserve</dt><dd>${sample.reserve}</dd></div></dl>
@@ -302,8 +302,8 @@ function inventoryRow(item: InventoryItem, index: number): string {
 function feasibilityCard(result = calculateFeasibility(plan!)): string {
   const labels = {
     empty: ['Waiting for a count', 'Add inventory to test this plan.'],
-    ready: ['Ready with room', `${result.difference.toLocaleString()} components remain after the reserve.`],
-    tight: ['Ready, but tight', `Only ${result.difference.toLocaleString()} components remain after the reserve.`],
+    ready: ['Enough components', `${result.difference.toLocaleString()} components remain after the reserve.`],
+    tight: ['Enough components, but tight', `Only ${result.difference.toLocaleString()} components remain after the reserve.`],
     short: ['Short for this deal', `Find ${Math.abs(result.difference).toLocaleString()} more or reduce the pool.`],
   } as const;
   return `<aside class="departure-board" aria-labelledby="board-title">

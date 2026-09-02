@@ -81,7 +81,7 @@
     "claim": "Planning, timers, printing, and exports stay free.",
     "where": "landing facts, Optional plan archives, Night Pass panel, terms",
     "test": "npm run test:claims -- --grep @claim:free-core-tools",
-    "sandbox": "fresh demo browser context; confirm the timer, print action, and both export actions are available without a license"
+    "sandbox": "fresh demo browser context without a license; confirm the timer and both export actions are available, replace window.print with a spy, click Print host sheet, and assert that the print call occurs"
   },
   {
     "id": "night-pass-sales-unavailable",

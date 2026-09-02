@@ -105,7 +105,7 @@ test('standard routes have a shared header and footer, and the 404 is a complete
 
   await page.goto('/');
   await expect(page.getByText(/Poster artwork is original AI-generated imagery/i)).toHaveCount(0);
-  await expect(page.getByText(/Built by Param Factory · Build 1\.0\.7-polish-4/)).toBeVisible();
+  await expect(page.getByText(/Built by Param Factory · Build 1\.0\.8-polish-5/)).toBeVisible();
   await page.goto('/privacy/');
   await expect(page.getByRole('link', { name: 'sociobot.in (external)' })).toHaveAttribute('href', 'https://sociobot.in');
 });
