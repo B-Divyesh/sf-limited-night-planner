@@ -34,7 +34,7 @@ describe('static delivery policy', () => {
     expect(precache).toContain('/demo/index.html');
     expect(precache).toContain('/404.html');
     expect(precache).toContain('/offline.html');
-    expect(precache).toHaveLength(24);
+    expect(precache).toHaveLength(26);
   });
 
   it('ships an original 180 pixel Apple touch icon', async () => {

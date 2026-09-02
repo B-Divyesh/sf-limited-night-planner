@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-test('cold landing names event hosts, offers the sample first, and qualifies pairings', async ({ page }) => {
+test('cold landing names event hosts, offers the sample first, and explains pairings plainly', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1, name: 'Plan a fair tabletop event.' })).toBeVisible();
   await expect(page.getByText('For hosts using mixed components, build a fair schedule before friends arrive.')).toBeVisible();
   await expect(page.getByRole('link', { name: /try it with sample data/i })).toBeVisible();
-  await expect(page.getByText(/Avoid repeat opponents for one round-robin cycle/)).toBeVisible();
+  await expect(page.getByText('Avoid repeat opponents until everyone has played each other.')).toBeVisible();
+  await expect(page.getByText(/round-robin/i)).toHaveCount(0);
   await expect(page.getByText(/repeat-free pairings/i)).toHaveCount(0);
 });
 
@@ -72,6 +73,7 @@ test('standard routes have a shared header and footer, and the 404 is a complete
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
     await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    await expect(page.locator('script[src="/route-focus.js"]')).toHaveCount(1);
     const touchIcon = page.locator('link[rel="apple-touch-icon"]');
     await expect(touchIcon).toHaveAttribute('sizes', '180x180');
     await expect(touchIcon).toHaveAttribute('href', '/apple-touch-icon.png');
@@ -83,5 +85,18 @@ test('standard routes have a shared header and footer, and the 404 is a complete
 
   await page.goto('/');
   await expect(page.getByText(/Poster artwork is original AI-generated imagery/i)).toHaveCount(0);
-  await expect(page.getByText(/Built by Param Factory · Build 1\.0\.5-polish-1/)).toBeVisible();
+  await expect(page.getByText(/Built by Param Factory · Build 1\.0\.6-polish-3/)).toBeVisible();
+});
+
+test('document route changes focus and announce the new route heading', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: /try it with sample data/i }).click();
+  await expect(page).toHaveURL(/\/demo\/$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Saturday mixed box night' })).toBeFocused();
+  await expect(page.locator('#route-announcer')).toHaveText('Demo opened.');
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Plan a fair tabletop event.' })).toBeFocused();
+  await expect(page.locator('#route-announcer')).toHaveText('Planner opened.');
 });

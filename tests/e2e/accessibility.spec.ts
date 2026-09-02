@@ -102,13 +102,16 @@ test('legal and not-found pages have no serious accessibility violations', async
   }
 });
 
-test('legal and not-found pages provide a keyboard skip link to their main content', async ({ page }) => {
+test('legal and not-found pages provide a keyboard skip link to their main content', async ({ browser }) => {
   for (const path of ['/privacy/', '/terms/', '/this-route-does-not-exist']) {
+    const context = await browser.newContext({ baseURL: 'http://127.0.0.1:4173' });
+    const page = await context.newPage();
     await page.goto(path);
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page.locator('main')).toBeFocused();
+    await context.close();
   }
 });
 

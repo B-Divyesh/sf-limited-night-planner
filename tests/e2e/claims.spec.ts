@@ -54,6 +54,10 @@ test('@claim:demo-sandbox sample data is reset and never becomes a real plan', a
   await page.goto('/demo/');
   await expect(page.getByRole('heading', { level: 1, name: 'Saturday mixed box night' })).toBeVisible();
   await page.goto('/?demo=1');
+  await expect(page).toHaveURL(/\/demo\/$/);
+  await expect(page).toHaveTitle('Demo — Limited Night Planner');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://limited-night-planner.sociobot.in/demo/');
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', 'https://limited-night-planner.sociobot.in/demo/');
   await expect(page.getByRole('heading', { level: 1, name: 'Saturday mixed box night' })).toBeVisible();
   await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
 });

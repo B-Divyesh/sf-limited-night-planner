@@ -24,7 +24,19 @@ describe('review 1 plain-language regressions', () => {
     for (const directLabel of ['Sample plan', 'Event details', 'Component check', 'Pool format', 'Set-up checklist', 'Print and export']) {
       expect(app).toContain(directLabel);
     }
+    expect(app).toContain('Enter the component counts you have.');
+    expect(app).toContain('Avoid repeat opponents until everyone has played each other.');
+    expect(app).toContain('Review the set-up checklist, component list, and seating in one host sheet.');
+    expect(app).not.toContain('No card database or venue Wi-Fi needed.');
+    expect(app).not.toContain('round-robin');
+    expect(app).not.toContain('One page for every transition.');
     expect(catalog.length).toBeLessThanOrEqual(120);
     expect(catalog).toMatch(/^Plan\b/);
+  });
+
+  it('routes the documented query demo entry to the canonical demo document', async () => {
+    const redirect = await readFile(resolve('public/route-redirect.js'), 'utf8');
+    expect(redirect).toContain("url.searchParams.get('demo') === '1'");
+    expect(redirect).toContain("window.location.replace('/demo/')");
   });
 });

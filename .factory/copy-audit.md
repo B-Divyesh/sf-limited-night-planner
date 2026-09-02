@@ -1,4 +1,4 @@
-# Landing copy audit — 2026-09-01
+# Landing copy audit — 2026-09-02
 
 Scope: every visible text string and sentence rendered on the real landing
 route, including the static skip link, header, first screen, planner-steps
@@ -18,7 +18,7 @@ labels, not prose sentences.
 | First screen | Planner for casual limited events | 5 | Pass |
 | First screen | Plan a fair tabletop event. | 5 | Pass |
 | First screen | For hosts using mixed components, build a fair schedule before friends arrive. | 11 | Pass |
-| First screen | No card database or venue Wi-Fi needed. | 7 | Pass |
+| First screen | Enter the component counts you have. | 6 | Pass |
 | First screen | Try it with sample data | 5 | Pass |
 | First screen | See a ready five-player host sheet. | 6 | Pass |
 | First screen | Start a real plan | 5 | Pass |
@@ -33,13 +33,13 @@ labels, not prose sentences.
 | Step 2 | Choose a pool | 3 | Pass |
 | Step 2 | See whether the count covers each player. | 7 | Pass |
 | Step 3 | Set seating | 2 | Pass |
-| Step 3 | Avoid repeat opponents for one round-robin cycle. | 7 | Pass |
+| Step 3 | Avoid repeat opponents until everyone has played each other. | 9 | Pass |
 | Step 4 | Run the event | 3 | Pass |
 | Step 4 | Use the timer and print the host sheet. | 8 | Pass |
 | Footer | Plan a casual limited event from mixed components. | 8 | Pass |
 | Footer | Your plan stays in this browser. | 6 | Pass |
 | Footer links | Privacy · Terms · Source | 3 | Pass |
-| Footer | Built by Param Factory · Build 1.0.5-polish-1 | 6 | Pass |
+| Footer | Built by Param Factory · Build 1.0.6-polish-3 | 6 | Pass |
 
 All prose sentences are 22 words or fewer. The landing source was scanned for
 the banned terms `leverage`, `seamless`, `effortless`, `robust`, `powerful`,

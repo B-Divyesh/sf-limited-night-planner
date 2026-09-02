@@ -30,9 +30,9 @@ import {
 } from './license';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD_ID = '1.0.5-polish-1';
+const BUILD_ID = '1.0.6-polish-3';
 const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
-const demoMode = normalizedPath === '/demo' || new URL(location.href).searchParams.get('demo') === '1';
+const demoMode = normalizedPath === '/demo';
 let plan: Plan | null = null;
 let activeStep = 0;
 let archives: Plan[] = [];
@@ -155,7 +155,7 @@ function renderLanding(): void {
       <div class="hero-copy">
         <p class="eyebrow">Planner for casual limited events</p>
         <h1>Plan a fair<br /><em>tabletop event.</em></h1>
-        <p class="hero-lead">For hosts using mixed components, build a fair schedule before friends arrive. No card database or venue Wi-Fi needed.</p>
+        <p class="hero-lead">For hosts using mixed components, build a fair schedule before friends arrive. Enter the component counts you have.</p>
         <div class="hero-actions"><a class="button button-primary" href="/demo/">Try it with sample data <span aria-hidden="true">→</span></a><p>See a ready five-player host sheet.</p></div>
         <button class="button button-secondary start-real-button" data-action="start-plan">Start a real plan</button>
         <ul class="plain-facts"><li>Works offline after the first visit.</li><li>Plan data stays in this browser.</li><li>Planning, timers, printing, and exports stay free.</li></ul>
@@ -171,7 +171,7 @@ function renderLanding(): void {
       <ol>
         <li><span>01</span><strong>Count components</strong><small>Include only groups that can mix.</small></li>
         <li><span>02</span><strong>Choose a pool</strong><small>See whether the count covers each player.</small></li>
-        <li><span>03</span><strong>Set seating</strong><small>Avoid repeat opponents for one round-robin cycle.</small></li>
+        <li><span>03</span><strong>Set seating</strong><small>Avoid repeat opponents until everyone has played each other.</small></li>
         <li><span>04</span><strong>Run the event</strong><small>Use the timer and print the host sheet.</small></li>
       </ol>
     </section>
@@ -193,7 +193,7 @@ function renderPlanner(): void {
   const subtitle = activeStep === 0 ? 'Count the pieces you can really use.'
     : activeStep === 1 ? 'Choose a fair deal before anyone sits down.'
       : activeStep === 2 ? 'Keep tables moving without improvising.'
-        : 'One page for every transition.';
+        : 'Review the set-up checklist, component list, and seating in one host sheet.';
   const views = [inventoryView, formatView, scheduleView, hostSheetView];
   app.innerHTML = shell(`${routeNav()}<main id="main" class="planner-shell" tabindex="-1">
     <div class="page-heading"><div><p class="eyebrow">Stop ${String(activeStep + 1).padStart(2, '0')} · ${steps[activeStep]}</p><h1 id="planner-step-title" tabindex="-1">${escapeHtml(plan.eventName || 'Untitled limited night')}</h1><p>${subtitle}</p></div><button class="button button-quiet danger-link" data-action="${demoMode ? 'reset-demo' : 'reset-plan'}">${demoMode ? 'Reset sample' : 'Start over'}</button></div>
@@ -673,6 +673,11 @@ function registerServiceWorker(): void {
   else window.addEventListener('load', register, { once: true });
 }
 
+function notifyDocumentRouteReady(): void {
+  document.documentElement.dataset.routeReady = 'true';
+  window.dispatchEvent(new Event('limited-night-planner:route-ready'));
+}
+
 async function init(): Promise<void> {
   if (!demoMode) captureReturnedLicense();
   license = demoMode
@@ -691,6 +696,7 @@ async function init(): Promise<void> {
     plan.timer.running = false; plan.timer.remainingSeconds = 0; plan.timer.endsAt = null;
   }
   plan ? renderPlanner() : renderLanding();
+  notifyDocumentRouteReady();
   startClock(); registerServiceWorker();
   addEventListener('online', () => { isOffline = false; message = 'Back online.'; plan ? renderPlanner() : renderLanding(); });
   addEventListener('offline', () => { isOffline = true; message = ''; plan ? renderPlanner() : renderLanding(); });

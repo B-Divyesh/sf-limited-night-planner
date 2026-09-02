@@ -9,8 +9,8 @@ Live: <https://limited-night-planner.sociobot.in>
 
 - Checks component totals and creates pools, seating rounds, a timer, and a host
   sheet.
-- Avoids repeat opponents for one round-robin cycle and warns before another
-  cycle begins.
+- Avoids repeat opponents until everyone has played each other. It warns before
+  pairings begin repeating.
 - Keeps a running timer after a refresh.
 - Exports the plan as JSON and the host sheet as CSV.
 - Keeps plan data in this browser and works offline after the first visit.
