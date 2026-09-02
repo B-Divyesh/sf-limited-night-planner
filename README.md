@@ -1,6 +1,6 @@
 # Limited Night Planner
 
-Plan a fair casual tabletop event from mixed components. It is for hosts who
+Plan pools and rounds for a casual tabletop event. It is for hosts who
 need pools, seating, timed rounds, and a host sheet without a card database.
 
 Live: <https://limited-night-planner.sociobot.in>

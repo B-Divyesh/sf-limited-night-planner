@@ -2,9 +2,9 @@
   {
     "id": "core-planning",
     "claim": "Checks component totals and creates pools, seating rounds, a timer, and a host sheet.",
-    "where": "landing How the planner works, README, terms",
+    "where": "landing sample preview and How the planner works, README, terms",
     "test": "npm run test:claims -- --grep @claim:core-planning",
-    "sandbox": "fresh demo browser context; inspect the component board, generated five-player seating, timer control, and host sheet"
+    "sandbox": "fresh demo browser context; assert 300 usable and 237 needed, the five 45-component pool instruction, concrete first-round seating, a timer value that decreases after starting, and host-sheet inventory and round rows"
   },
   {
     "id": "demo-sandbox",
@@ -23,7 +23,7 @@
   {
     "id": "local-plan-data",
     "claim": "Plan data stays in this browser.",
-    "where": "landing facts, footer, privacy policy, README",
+    "where": "landing facts and privacy section, footer, privacy policy, README",
     "test": "npm run test:claims -- --grep @claim:local-plan-data",
     "sandbox": "fresh demo browser context recording all page requests while using the sample plan"
   },
@@ -79,14 +79,14 @@
   {
     "id": "free-core-tools",
     "claim": "Planning, timers, printing, and exports stay free.",
-    "where": "landing facts, Night Pass panel, terms",
+    "where": "landing facts, Optional plan archives, Night Pass panel, terms",
     "test": "npm run test:claims -- --grep @claim:free-core-tools",
     "sandbox": "fresh demo browser context; confirm the timer, print action, and both export actions are available without a license"
   },
   {
     "id": "night-pass-sales-unavailable",
     "claim": "New Night Pass purchases are not available yet; existing passes can still be restored.",
-    "where": "Night Pass panel, terms, README",
+    "where": "Optional plan archives, Night Pass panel, terms, README",
     "test": "npm run test:claims -- --grep @claim:night-pass-sales-unavailable",
     "sandbox": "fresh real-plan browser context; use a recorded valid Sociobot response fixture, submit an existing pass, and assert archive access unlocks without advertising a checkout"
   },
@@ -100,7 +100,7 @@
   {
     "id": "reusable-archives",
     "claim": "Save reusable snapshots on this device.",
-    "where": "unlocked Night Pass panel",
+    "where": "Optional plan archives and unlocked Night Pass panel",
     "test": "npm run test:claims -- --grep @claim:reusable-archives",
     "sandbox": "fresh real-plan browser context; use a recorded valid pass fixture, archive a named plan, change the current copy, reload, and reopen the saved snapshot"
   },

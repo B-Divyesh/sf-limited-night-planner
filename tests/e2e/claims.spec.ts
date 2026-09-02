@@ -62,14 +62,28 @@ test('@claim:demo-sandbox sample data is reset and never becomes a real plan', a
   await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
 });
 
-test('@claim:core-planning shows stock, seating, timer, and the host sheet', async ({ page }) => {
+test('@claim:core-planning checks totals and creates pools, seating rounds, a running timer, and a host sheet', async ({ page }) => {
   await openDemo(page);
-  await expect(page.getByText('300/237')).toBeVisible();
+  await page.getByRole('button', { name: '01 Inventory' }).click();
+  const componentBoard = page.locator('.departure-board');
+  await expect(componentBoard.getByText('300', { exact: true })).toBeVisible();
+  await expect(componentBoard.getByText('237', { exact: true })).toBeVisible();
+
   await page.getByRole('button', { name: '03 Schedule' }).click();
-  await expect(page.getByText(/Avery sits out|Morgan sits out|Sam sits out|Jo sits out|Kai sits out/).first()).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Start timer' })).toBeVisible();
+  const firstRound = page.locator('.round-card').first();
+  await expect(firstRound.getByText('Avery sits out', { exact: true })).toBeVisible();
+  await expect(firstRound.getByText('Morgan vs Kai', { exact: true })).toBeVisible();
+  const timer = page.getByRole('timer');
+  await expect(timer).toHaveText('45:00');
+  await page.getByRole('button', { name: 'Start timer' }).click();
+  await page.waitForTimeout(1_300);
+  await expect(timer).not.toHaveText('45:00');
+
   await page.getByRole('button', { name: '04 Host sheet' }).click();
   await expect(page.getByRole('heading', { name: 'Set-up checklist' })).toBeVisible();
+  await expect(page.getByText('Count 237 components into 5 pools of 45.', { exact: true })).toBeVisible();
+  await expect(page.locator('.manifest-list')).toContainText('Compatible mixed components');
+  await expect(page.locator('.print-rounds').first()).toContainText('Morgan vs Kai');
 });
 
 test('@claim:local-plan-data demo use sends no plan data away from this origin', async ({ page }) => {

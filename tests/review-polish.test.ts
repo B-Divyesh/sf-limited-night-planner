@@ -34,6 +34,35 @@ describe('review 1 plain-language regressions', () => {
     expect(catalog).toMatch(/^Plan\b/);
   });
 
+  it('removes the undefined fairness promise and records the review-four landing sections', async () => {
+    const [app, readme, landing, manifest, catalog] = await Promise.all([
+      readFile(resolve('src/app.ts'), 'utf8'),
+      readFile(resolve('README.md'), 'utf8'),
+      readFile(resolve('index.html'), 'utf8'),
+      readFile(resolve('public/manifest.webmanifest'), 'utf8'),
+      readFile(resolve('.factory/catalog-description.txt'), 'utf8'),
+    ]);
+    for (const source of [app, readme, landing, manifest, catalog]) expect(source.toLowerCase()).not.toContain('fair');
+    for (const requiredCopy of [
+      'See a completed five-player plan',
+      'const poolInstruction',
+      'What the planner does not check',
+      'Where your data goes',
+      'Optional plan archives',
+    ]) expect(app).toContain(requiredCopy);
+  });
+
+  it('identifies every reviewed external link as external', async () => {
+    const [app, privacy, terms, notFound] = await Promise.all([
+      readFile(resolve('src/app.ts'), 'utf8'),
+      readFile(resolve('privacy/index.html'), 'utf8'),
+      readFile(resolve('terms/index.html'), 'utf8'),
+      readFile(resolve('404.html'), 'utf8'),
+    ]);
+    for (const source of [app, privacy, terms, notFound]) expect(source).toContain('Source code (external)');
+    expect(privacy).toContain('sociobot.in (external)');
+  });
+
   it('routes the documented query demo entry to the canonical demo document', async () => {
     const redirect = await readFile(resolve('public/route-redirect.js'), 'utf8');
     expect(redirect).toContain("url.searchParams.get('demo') === '1'");

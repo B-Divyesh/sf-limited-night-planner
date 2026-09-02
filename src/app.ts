@@ -30,7 +30,7 @@ import {
 } from './license';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD_ID = '1.0.6-polish-3';
+const BUILD_ID = '1.0.7-polish-4';
 const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
 const demoMode = normalizedPath === '/demo';
 let plan: Plan | null = null;
@@ -134,7 +134,7 @@ function masthead(): string {
 function footer(): string {
   return `<footer class="footer">
     <div><strong>Plan a casual limited event from mixed components.</strong><br />Your plan stays in this browser.</div>
-    <nav aria-label="Site links"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-limited-night-planner" rel="noreferrer">Source</a></nav>
+    <nav aria-label="Site links"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-limited-night-planner" rel="noreferrer">Source code (external)</a></nav>
     <small>Built by Param Factory · Build ${BUILD_ID}</small>
   </footer>`;
 }
@@ -154,8 +154,8 @@ function renderLanding(): void {
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">Planner for casual limited events</p>
-        <h1>Plan a fair<br /><em>tabletop event.</em></h1>
-        <p class="hero-lead">For hosts using mixed components, build a fair schedule before friends arrive. Enter the component counts you have.</p>
+        <h1>Plan pools and rounds<br /><em>for a tabletop event.</em></h1>
+        <p class="hero-lead">For hosts using mixed components, check counts and build a schedule before friends arrive. Enter the component counts you have.</p>
         <div class="hero-actions"><a class="button button-primary" href="/demo/">Try it with sample data <span aria-hidden="true">→</span></a><p>See a ready five-player host sheet.</p></div>
         <button class="button button-secondary start-real-button" data-action="start-plan">Start a real plan</button>
         <ul class="plain-facts"><li>Works offline after the first visit.</li><li>Plan data stays in this browser.</li><li>Planning, timers, printing, and exports stay free.</li></ul>
@@ -165,6 +165,7 @@ function renderLanding(): void {
         <img src="/assets/midnight-route-1536.webp" srcset="/assets/midnight-route-768.webp 768w, /assets/midnight-route-1536.webp 1536w" sizes="(max-width: 860px) calc(100vw - 24px), 60vw" width="1536" height="1024" alt="Blank tabletop components traveling along brass routes into four equal player kits" fetchpriority="high" decoding="async" />
       </picture>
     </section>
+    ${landingSamplePreview()}
     <section class="promise" aria-labelledby="promise-title">
       <p class="route-number" aria-hidden="true">04</p>
       <div><p class="eyebrow">Four steps</p><h2 id="promise-title">How the planner works</h2></div>
@@ -175,8 +176,64 @@ function renderLanding(): void {
         <li><span>04</span><strong>Run the event</strong><small>Use the timer and print the host sheet.</small></li>
       </ol>
     </section>
+    <section class="landing-details" aria-labelledby="limits-title">
+      <section>
+        <p class="eyebrow">Privacy and limits</p>
+        <h2 id="limits-title">What the planner does not check</h2>
+        <p>You supply compatibility notes and official rules.</p>
+        <p>The planner does not decide whether component groups can mix.</p>
+      </section>
+      <section aria-labelledby="data-title">
+        <h2 id="data-title">Where your data goes</h2>
+        <p>Plans stay in this browser.</p>
+        <p>Restoring an existing Night Pass sends its license token to Sociobot for a check.</p>
+      </section>
+      <section aria-labelledby="archives-title">
+        <h2 id="archives-title">Optional plan archives</h2>
+        <p>Planning, timers, printing, and exports are free.</p>
+        <p>Existing Night Pass holders can restore local plan archives. New passes are not available yet.</p>
+      </section>
+    </section>
   </main>`);
   bindEvents();
+}
+
+function landingSamplePreview(): string {
+  const sample = createSamplePlan();
+  const result = calculateFeasibility(sample);
+  const firstRound = buildRounds(sample)[0];
+  const poolInstruction = `Count ${result.required.toLocaleString()} components into ${sample.players} pools of ${sample.componentsPerPlayer}.`;
+  const firstRoundRows = firstRound?.pairings.map((pair) => `<li><span>${pair.bye ? 'Bye' : `Table ${pair.table}`}</span><strong>${escapeHtml(pair.playerA === 'BYE' ? pair.playerB : pair.playerA)}${pair.bye ? ' sits out' : ` <i>vs</i> ${escapeHtml(pair.playerB)}`}</strong></li>`).join('') ?? '';
+  return `<section class="sample-preview" aria-labelledby="sample-preview-title">
+    <div class="sample-preview-intro">
+      <p class="eyebrow">Sample plan</p>
+      <h2 id="sample-preview-title">See a completed five-player plan</h2>
+      <p>Check the count, first seating round, and host-sheet instruction before opening the sample.</p>
+      <a class="button button-primary" href="/demo/">Open the sample plan <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="sample-preview-board">
+      <section class="preview-count" aria-labelledby="preview-count-title">
+        <p class="eyebrow">Component check</p>
+        <h3 id="preview-count-title">Ready with room</h3>
+        <p class="preview-total"><strong>${result.available}</strong><span>/</span><strong>${result.required}</strong></p>
+        <p>usable / needed</p>
+        <dl><div><dt>Each pool</dt><dd>${result.perPlayer}</dd></div><div><dt>Reserve</dt><dd>${sample.reserve}</dd></div></dl>
+      </section>
+      <section class="preview-host-sheet" aria-labelledby="preview-host-title">
+        <p class="eyebrow">Host-sheet excerpt</p>
+        <h3 id="preview-host-title">Set-up checklist</h3>
+        <p>${poolInstruction}</p>
+        <p>Set aside the ${sample.reserve}-component reserve.</p>
+        <p>Included: ${escapeHtml(sample.inventory[0].name)} · ${sample.inventory[0].count}</p>
+      </section>
+      <section class="preview-round" aria-labelledby="preview-round-title">
+        <p class="eyebrow">Generated seating</p>
+        <h3 id="preview-round-title">Round ${firstRound?.round ?? 1}</h3>
+        <p>${firstRound?.startsAt ?? ''}–${firstRound?.endsAt ?? ''}</p>
+        <ul>${firstRoundRows}</ul>
+      </section>
+    </div>
+  </section>`;
 }
 
 function routeNav(): string {
@@ -191,7 +248,7 @@ function routeNav(): string {
 function renderPlanner(): void {
   if (!plan) return renderLanding();
   const subtitle = activeStep === 0 ? 'Count the pieces you can really use.'
-    : activeStep === 1 ? 'Choose a fair deal before anyone sits down.'
+    : activeStep === 1 ? 'Choose a pool before anyone sits down.'
       : activeStep === 2 ? 'Keep tables moving without improvising.'
         : 'Review the set-up checklist, component list, and seating in one host sheet.';
   const views = [inventoryView, formatView, scheduleView, hostSheetView];

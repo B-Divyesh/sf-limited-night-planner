@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Limited Night Planner",
   "short_name": "Night Planner",
-  "description": "Plan fair pools, timed rounds, and seating from mixed tabletop inventory.",
+  "description": "Plan pools, timed rounds, and seating from mixed tabletop inventory.",
   "start_url": "/?source=installed&v=1",
   "scope": "/",
   "display": "standalone",
