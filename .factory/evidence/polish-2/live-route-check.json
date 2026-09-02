@@ -1,0 +1,106 @@
+{
+  "desktop": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Limited Night Planner — plan a tabletop event",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/demo/",
+      "status": 200,
+      "title": "Demo — Limited Night Planner",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/privacy/",
+      "status": 200,
+      "title": "Privacy — Limited Night Planner",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/terms/",
+      "status": 200,
+      "title": "Terms — Limited Night Planner",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/this-route-does-not-exist",
+      "status": 404,
+      "title": "Page not found — Limited Night Planner",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    }
+  ],
+  "mobile": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Limited Night Planner — plan a tabletop event",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/demo/",
+      "status": 200,
+      "title": "Demo — Limited Night Planner",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/privacy/",
+      "status": 200,
+      "title": "Privacy — Limited Night Planner",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/terms/",
+      "status": 200,
+      "title": "Terms — Limited Night Planner",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    },
+    {
+      "path": "/this-route-does-not-exist",
+      "status": 404,
+      "title": "Page not found — Limited Night Planner",
+      "icon": {
+        "href": "/apple-touch-icon.png",
+        "sizes": "180x180"
+      },
+      "seriousOrCritical": 0
+    }
+  ]
+}

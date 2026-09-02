@@ -1,0 +1,24 @@
+{
+  "viewportHeight": 900,
+  "facts": [
+    {
+      "fact": "Works offline after the first visit.",
+      "bottom": 670.2,
+      "insideViewport": true
+    },
+    {
+      "fact": "Plan data stays in this browser.",
+      "bottom": 695.8,
+      "insideViewport": true
+    },
+    {
+      "fact": "Planning, timers, printing, and exports stay free.",
+      "bottom": 721.4,
+      "insideViewport": true
+    }
+  ],
+  "appleTouchIcon": {
+    "status": 200,
+    "contentType": "image/png"
+  }
+}

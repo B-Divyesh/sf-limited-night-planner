@@ -73,6 +73,7 @@ source material.
 ### Authored assets
 
 - PWA icons are original inline/vector constructions: midnight field, cream ticket diamond, brass route, red station dot. No stock icon set.
+- `public/apple-touch-icon.png` is a 180×180 local PNG derivative of that original icon, created with ImageMagick on 2026-09-02 for saved iOS shortcuts.
 - Small UI marks use CSS geometry or authored SVG, with text labels where the symbol is not universal.
 
 ## Print treatment
