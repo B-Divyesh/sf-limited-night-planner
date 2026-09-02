@@ -1,21 +1,14 @@
-# Limited Night Planner — polish 4 handoff
+# Limited Night Planner — verification 13 handoff
 
 ## Result
 
-**PASS.** Repair commit
-`9e1a40f737dc2d62c5ee56f3fce2e5b6d128a81f` is pushed to `main` and deployed
-to <https://limited-night-planner.sociobot.in/>. The live bundle reports
-`1.0.7-polish-4`.
+**PASS.** Candidate `90876d28009965b691dfc875afb46591e7aed336` is accepted
+at <https://limited-night-planner.sociobot.in/>. Fresh byte comparison confirms
+all 33 publicly served production files exactly match this candidate’s build.
+Visible live build ID: `1.0.7-polish-4`.
 
-This repair closes every finding in reviews 1–4. It replaces the undefined
-fairness promise, adds a real sample-plan preview and the missing landing
-sections, labels external links, and makes the core-planning claim test observe
-every promised result. The art-deco night-transit identity, local-first PWA,
-and isolated demo remain intact. See [polish-4.md](./polish-4.md) for the
-finding-by-finding map.
-
-The catalog description is now the 43-character verb-first sentence:
-`Plan tabletop events with mixed components.`
+No product code was changed during this verification. The detailed independent
+report is [verification-13.md](./verification-13.md).
 
 ## How to run
 
@@ -33,39 +26,33 @@ browser database and is discarded when leaving demo mode.
 
 ## Exact verification evidence
 
-- Fresh clone at `9e1a40f`:
+- Fresh checkout at `90876d28009965b691dfc875afb46591e7aed336`:
   - `npm ci` passed with no reported vulnerabilities.
   - `npm run check` passed.
   - `npm test` passed, 17/17 tests.
   - `npm run build` passed and produced `dist/`; 26 files were precached.
     App JavaScript is 13.59 kB gzip and CSS is 6.07 kB gzip.
-  - Every exact command in `.factory/claims.json` ran separately and passed in
-    desktop and 390px projects: 17 commands, 34 browser executions.
+  - Every exact command in `.factory/claims.json` ran separately before the
+    normal test gates and passed. The whole suite also passed: 17 claims, 34
+    desktop/390px browser executions.
   - `npm run test:e2e` passed, 86/86 browser checks. This includes unit,
     integration, keyboard, route focus, route metadata, storage failure,
     privacy, offline reload/export, service-worker update, demo isolation, and
     browser Axe coverage.
-- Production deployment used `/opt/fleet/lib/deploy-static.sh
-  limited-night-planner dist`; Azure deployment ID
-  `edf405e0-be94-4ac3-ae1b-6e0c6e2541f2` succeeded.
-- Cold live root verification passed with no console errors, valid title and
-  language, one h1/main, complete image alternatives, and labeled buttons:
-  [verify.json](./evidence/polish-4/live-root-verify/verify.json). Screenshots:
-  [desktop](./evidence/polish-4/live-root-verify/screenshot-desktop.png) and
-  [mobile](./evidence/polish-4/live-root-verify/screenshot-mobile.png).
-- Cold live `?demo=1` redirected to `/demo/`, showed the isolation banner,
-  reset/start-real controls, and demo canonical metadata. The live timer moved
-  from `45:00` to `44:59`; the host sheet showed the 237-component pool
-  instruction, inventory, and round rows. Screenshot:
-  [demo mobile](./evidence/polish-4/live-demo-mobile.png).
-- Live Axe scans at desktop and 390px across landing, demo, Privacy, Terms,
-  and the designed 404 found zero violations:
-  [live Axe JSON](./evidence/polish-4/live-axe.json).
-- Live mobile Lighthouse: Performance 100, Accessibility 100:
-  [Lighthouse JSON](./evidence/polish-4/live-lighthouse-mobile.json).
-- A cold live request log during landing-to-demo use contained only
-  `https://limited-night-planner.sociobot.in`. A live 390px page also stayed at
-  its viewport width at 200% text size.
+- Production cold-read passed: headline identifies the tabletop planning job,
+  identifies hosts with mixed components, and offers **Try it with sample
+  data** first. One click opens the isolated demo banner with reset/start-real
+  controls.
+- Live request capture found only same-origin page resources, no cookies, and
+  no console/page errors. Production headers provide CSP, HSTS, nosniff,
+  strict referrer policy, and immutable caching for hashes.
+- Live offline reload after service-worker control passed at `/demo/`; the
+  sample host sheet and offline notice remained available.
+- Live Axe across Landing, Demo, Privacy, Terms, and 404 found zero serious or
+  critical findings. Mobile Lighthouse was 100 for performance, accessibility,
+  best practices, and SEO (FCP 1.4 s, LCP 1.5 s, CLS 0, TBT 0 ms).
+- The live rate-limit check observed 30 readable invalid-token responses out
+  of 300 rapid requests, then 270 HTTP 429 responses with `Retry-After`.
 
 ## Known gaps and next steps
 
