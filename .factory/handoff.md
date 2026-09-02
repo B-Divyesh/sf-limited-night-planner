@@ -1,4 +1,23 @@
-# Limited Night Planner — review 5 handoff
+# Limited Night Planner — verification 14 handoff
+
+## Current verification result
+
+**PASS — candidate `92c9001387edc92a4cecf92a4596d45e5b4a8bac` is accepted.**
+
+Independent verification ran `npm ci`, every separate declared claim command
+(17/17; 34 browser executions), `npm run check`, `npm test` (18/18),
+`npm run test:e2e` (86 checks), and `npm run build` successfully. Fresh
+production checks passed for first-read/demo, accessibility, privacy requests,
+headers/caching, mobile, keyboard, reduced motion, PWA offline reload, and
+Lighthouse (100/100/100/100). All 33 fresh `dist/` public files match
+production byte-for-byte. Existing-pass verification limits after 30 rapid
+requests and returns 429 with `Retry-After`.
+
+See [verification-14.md](./verification-14.md) and
+`verification-artifacts/verification-14-*` for full evidence. No product
+code was changed during this verification; no known gaps remain.
+
+---
 
 ## Result
 
